@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/sws.css">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@1,400;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" data-name="vs/editor/editor.main" href="css/editor/editor.main.css" />
+    <script src="./js/serverlessWorkflowSdk.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@9.4.3/dist/mermaid.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+    <script>
+        mermaid.mermaidAPI.initialize({
+            startOnLoad: false
+        });
+    </script>
+    <title>Serverless Workflow Online Editor</title>
+</head>
+
+<body>
+    <h1 style="text-align: center;">FinBox's fork for serverless workflow diagram creation</h1>
+    <div style="padding-left: 20px; padding-right: 20px;">
+        <div class="row">
+            <div class="col">
+                <div id="sweditor" style="width: 100%; height: 90vh; border: 1px solid grey"></div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+
+                        <div class="d-flex justify-content-between">
+                            <a href="#" class="btn btn-primary btn-sm"
+                                onclick="generateDiagram(this.value);return false;">Generate workflow diagram</a>
+                            <div class="d-flex">
+                                <a href="#" class="btn btn-primary btn-sm"
+                                    onclick="generateImageFromSVG(document.getElementById('quality').value);return false;">Generate
+                                    image</a>
+                                <select id="quality" class="ml-2">
+                                    <option value="0.25">Low</option>
+                                    <option value="0.5">Medium</option>
+                                    <option value="1" selected>High</option>
+                                </select>
+                            </div>
+                            <a href="#" class="btn btn-primary btn-sm"
+                                onclick="goFullScreen(this.value);return false;">Go full screen</a>
+                        </div>
+
+                        <div class="workflowdiagram">
+                            <br />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <div class="workflowdiagram"></div> -->
+            </div>
+        </div>
+    </div>
+
+
+    </div>
+
+    <script>
+        var require = { paths: { vs: 'min/vs' } };
+    </script>
+    <script src="js/loader.js"></script>
+    <script src="js/editor.main.nls.js"></script>
+    <script src="js/editor.main.js"></script>
+    <script src="js/sweditor.js"></script>
+    <script>
+        var jsonCode = [
+            '{',
+
+            "}"
+        ].join('\n');
+        var modelUri = monaco.Uri.parse("https://raw.githubusercontent.com/serverlessworkflow/specification/0.7.x/schema/workflow.json");
+
+        var model = monaco.editor.createModel(JSON.stringify(customerApplication, null, 2), "json", modelUri);
+
+        monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+            validate: true, allowComments: false,
+            schemas: [{
+                uri: "https://raw.githubusercontent.com/serverlessworkflow/specification/0.7.x/schema/workflow.json",
+                fileMatch: [modelUri.toString()]
+            }], enableSchemaRequest: true
+        });
+
+        monaco.editor.create(document.getElementById("sweditor"), {
+            model: model
+        });
+
+        generateDiagram();
+
+    </script>
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-mockjax/1.5.3/jquery.mockjax.min.js"></script>
+    <script src="js/wrscript.js"></script>
+    <script src="js/jquery-form-serializer.js"></script>
+</body>
+
+</html>
