@@ -12,7 +12,6 @@
     <link rel="stylesheet" data-name="vs/editor/editor.main" href="css/editor/editor.main.css" />
     <script src="./js/serverlessWorkflowSdk.umd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@9.4.3/dist/mermaid.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
     <script>
         mermaid.mermaidAPI.initialize({
             startOnLoad: false
@@ -22,7 +21,6 @@
 </head>
 
 <body>
-    <h1 style="text-align: center;">FinBox's fork for serverless workflow diagram creation</h1>
     <div style="padding-left: 20px; padding-right: 20px;">
         <div class="row">
             <div class="col">
@@ -71,14 +69,15 @@
     <script src="js/editor.main.js"></script>
     <script src="js/sweditor.js"></script>
     <script>
-        var jsonCode = [
-            '{',
-
-            "}"
-        ].join('\n');
         var modelUri = monaco.Uri.parse("https://raw.githubusercontent.com/serverlessworkflow/specification/0.7.x/schema/workflow.json");
 
-        var model = monaco.editor.createModel(JSON.stringify(customerApplication, null, 2), "json", modelUri);
+        const lastSWFJson = localStorage.getItem("lastSWFJson");
+
+        if (lastSWFJson != null) {
+            var model = monaco.editor.createModel(lastSWFJson, "json", modelUri)
+        } else {
+            var model = monaco.editor.createModel(JSON.stringify(customerApplication, null, 2), "json", modelUri);
+        }
 
         monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
             validate: true, allowComments: false,

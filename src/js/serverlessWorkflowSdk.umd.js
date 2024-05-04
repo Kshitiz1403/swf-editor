@@ -17769,27 +17769,60 @@
           return this.stateDescription(this.stateName(), "Condition type", "data-based");
       };
       MermaidState.prototype.operationStateDetails = function () {
-          var _a;
-          var state = this.state;
-          var descriptions = [];
-          if (state.actionMode) {
-              descriptions.push(this.stateDescription(this.stateName(), 'Action mode', state.actionMode));
+        var _a;
+        var state = this.state;
+        var descriptions = [];
+  
+        if (state.actions.length == 1) {
+          const action = state.actions[0];
+          const functionRef = action.functionRef;
+          // const arguments = functionRef.arguments;
+          function convertObjectToString(obj, parentKey = "") {
+            let result = "";
+            for (let key in obj) {
+              if (obj.hasOwnProperty(key)) {
+                if (Array.isArray(obj[key])) {
+                  obj[key].forEach((item, index) => {
+                    result += convertObjectToString(
+                      item,
+                      `${parentKey}${key}[${index}].`
+                    );
+                  });
+                } else if (typeof obj[key] === "object") {
+                  result += convertObjectToString(
+                    obj[key],
+                    `${parentKey}${key}.`
+                  );
+                } else {
+                  result += `${parentKey}${key} = ${obj[key]}<br/>`;
+                }
+              }
+            }
+            return result;
           }
-          if (state.actions) {
-              descriptions.push(this.stateDescription(this.stateName(), 'Num. of actions', ((_a = state.actions) === null || _a === void 0 ? void 0 : _a.length) + ''));
-          }
-          return descriptions.length > 0
-              ? descriptions.reduce(function (p, c) {
-                  return p + '\n' + c;
-              })
-              : undefined;
+          const argumentsString = convertObjectToString(functionRef.arguments);
+  
+          console.log(argumentsString);
+          descriptions.push(
+            `${this.stateName()} : <center><b>Arguments</center></b> ${argumentsString}`
+          );
+        }
+        return descriptions.length > 0
+          ? descriptions.reduce(function (p, c) {
+              return p + "\n" + c;
+            })
+          : undefined;
       };
       MermaidState.prototype.sleepStateDetails = function () {
-          var state = this.state;
-          if (state.duration) {
-              return this.stateDescription(this.stateName(), 'Duration', state.duration);
-          }
-          return undefined;
+        var state = this.state;
+        if (state.duration) {
+          return this.stateDescription(
+            this.stateName(),
+            "Duration",
+            state.duration
+          );
+        }
+        return undefined;
       };
       MermaidState.prototype.foreachStateDetails = function () {
           var _a;

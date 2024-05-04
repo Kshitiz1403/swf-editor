@@ -607,3 +607,14 @@ function changeTheme(theme) {
     monaco.editor.setTheme(theme);
   }
 }
+
+/**
+ * Saves the content of the first model in the Monaco editor to the local storage every 3 seconds.
+ * @returns {number} The ID of the interval timer.
+ */
+const saveToLocalStorage = setInterval(() => {
+  const model = monaco.editor.getModels()[0];
+  const modelVal = model.getValue();
+
+  localStorage.setItem("lastSWFJson", modelVal);
+}, 3000);
