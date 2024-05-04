@@ -17772,46 +17772,45 @@
         var _a;
         var state = this.state;
         var descriptions = [];
-  
-        if (state.actions.length == 1) {
-          const action = state.actions[0];
-          const functionRef = action.functionRef;
-          // const arguments = functionRef.arguments;
-          function convertObjectToString(obj, parentKey = "") {
-            let result = "";
-            for (let key in obj) {
-              if (obj.hasOwnProperty(key)) {
-                if (Array.isArray(obj[key])) {
-                  obj[key].forEach((item, index) => {
-                    result += convertObjectToString(
-                      item,
-                      `${parentKey}${key}[${index}].`
-                    );
-                  });
-                } else if (typeof obj[key] === "object") {
-                  result += convertObjectToString(
-                    obj[key],
-                    `${parentKey}${key}.`
-                  );
-                } else {
-                  result += `${parentKey}${key} = ${obj[key]}<br/>`;
-                }
+
+          if (state.actions.length == 1) {
+              const action = state.actions[0];
+              const functionRef = action.functionRef;
+
+              descriptions.push(this.stateDescription(this.stateName(), "Ref Name", functionRef.refName));
+
+              function convertObjectToString(obj, parentKey = "") {
+                  let result = "";
+                  for (let key in obj) {
+                      if (obj.hasOwnProperty(key)) {
+                          if (Array.isArray(obj[key])) {
+                              obj[key].forEach((item, index) => {
+                                  result += convertObjectToString(
+                                      item,
+                                      `${parentKey}${key}[${index}].`
+                                  );
+                              });
+                          } else if (typeof obj[key] === "object") {
+                              result += convertObjectToString(
+                                  obj[key],
+                                  `${parentKey}${key}.`
+                              );
+                          } else {
+                              result += `${parentKey}${key} = ${obj[key]}<br/>`;
+                          }
+                      }
+                  }
+                  return result;
               }
-            }
-            return result;
+              const argumentsString = convertObjectToString(functionRef.arguments);
+
+              descriptions.push(this.stateDescriptionWithFocus(this.stateName(), "Arguments", argumentsString))
           }
-          const argumentsString = convertObjectToString(functionRef.arguments);
-  
-          console.log(argumentsString);
-          descriptions.push(
-            `${this.stateName()} : <center><b>Arguments</center></b> ${argumentsString}`
-          );
-        }
-        return descriptions.length > 0
-          ? descriptions.reduce(function (p, c) {
-              return p + "\n" + c;
-            })
-          : undefined;
+          return descriptions.length > 0
+              ? descriptions.reduce(function (p, c) {
+                  return p + "\n" + c;
+              })
+              : undefined;
       };
       MermaidState.prototype.sleepStateDetails = function () {
         var state = this.state;
@@ -17873,6 +17872,9 @@
       MermaidState.prototype.stateDescription = function (stateName, description, value) {
           return stateName + (" : " + description + " = " + value);
       };
+      MermaidState.prototype.stateDescriptionWithFocus = function (stateName, description, value) {
+        return  stateName + ` : <center><b>${description}</b></center> ${value}`;
+      }
       return MermaidState;
   }());
 
