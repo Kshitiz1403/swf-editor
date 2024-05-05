@@ -165,6 +165,17 @@ async function goFullScreen() {
   const done = await elem.requestFullscreen();
 }
 
+function getWorkflowName(){
+  try {
+    const model = monaco.editor.getModels()[0];
+    const modelVal = model.getValue();
+    const json = JSON.parse(modelVal);
+    return json.name;
+  } catch (error) {
+    return "swf"
+  }
+}
+
 function generateImageFromSVG(quality) {
   var svgElement = document
     .querySelector(".workflowdiagram")
@@ -227,7 +238,7 @@ function generateImageFromSVG(quality) {
     link.href = dataURL;
 
     // Set the download attribute of the link
-    link.download = "swf.jpeg";
+    link.download = `${getWorkflowName()}.jpeg`;
 
     // Programmatically click the link to start the download
     link.click();

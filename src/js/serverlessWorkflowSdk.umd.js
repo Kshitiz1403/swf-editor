@@ -17777,34 +17777,36 @@
               const action = state.actions[0];
               const functionRef = action.functionRef;
 
-              descriptions.push(this.stateDescription(this.stateName(), "Ref Name", functionRef.refName));
+              if (functionRef) {
+                  descriptions.push(this.stateDescription(this.stateName(), "Ref Name", functionRef.refName));
 
-              function convertObjectToString(obj, parentKey = "") {
-                  let result = "";
-                  for (let key in obj) {
-                      if (obj.hasOwnProperty(key)) {
-                          if (Array.isArray(obj[key])) {
-                              obj[key].forEach((item, index) => {
+                  function convertObjectToString(obj, parentKey = "") {
+                      let result = "";
+                      for (let key in obj) {
+                          if (obj.hasOwnProperty(key)) {
+                              if (Array.isArray(obj[key])) {
+                                  obj[key].forEach((item, index) => {
+                                      result += convertObjectToString(
+                                          item,
+                                          `${parentKey}${key}[${index}].`
+                                      );
+                                  });
+                              } else if (typeof obj[key] === "object") {
                                   result += convertObjectToString(
-                                      item,
-                                      `${parentKey}${key}[${index}].`
+                                      obj[key],
+                                      `${parentKey}${key}.`
                                   );
-                              });
-                          } else if (typeof obj[key] === "object") {
-                              result += convertObjectToString(
-                                  obj[key],
-                                  `${parentKey}${key}.`
-                              );
-                          } else {
-                              result += `${parentKey}${key} = ${obj[key]}<br/>`;
+                              } else {
+                                  result += `${parentKey}${key} = \"${obj[key]}\"<br/>`;
+                              }
                           }
                       }
+                      return result;
                   }
-                  return result;
-              }
-              const argumentsString = convertObjectToString(functionRef.arguments);
+                  const argumentsString = convertObjectToString(functionRef.arguments);
 
-              descriptions.push(this.stateDescriptionWithFocus(this.stateName(), "Arguments", argumentsString))
+                  descriptions.push(this.stateDescriptionWithFocus(this.stateName(), "Arguments", argumentsString));
+              }
           }
           return descriptions.length > 0
               ? descriptions.reduce(function (p, c) {
