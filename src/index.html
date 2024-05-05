@@ -71,7 +71,7 @@
     <script>
         var modelUri = monaco.Uri.parse("https://raw.githubusercontent.com/serverlessworkflow/specification/0.7.x/schema/workflow.json");
 
-        const lastSWFJson = localStorage.getItem("lastSWFJson");
+        const lastSWFJson = localStorage.getItem(LOCAL_STORAGE_SWF_JSON);
 
         if (lastSWFJson != null) {
             var model = monaco.editor.createModel(lastSWFJson, "json", modelUri)
@@ -90,6 +90,8 @@
         monaco.editor.create(document.getElementById("sweditor"), {
             model: model
         });
+
+        mountEditor();
 
         generateDiagram();
 
