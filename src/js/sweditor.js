@@ -140,9 +140,16 @@ function mountEditor() {
   monaco.editor.getModels()[0].onDidChangeContent(e =>{
   saveToLocalStorage();
   })
-
 }
 
+
+function formatJSON(){
+  const model = monaco.editor.getModels()[0];
+  const modelVal = model.getValue();
+  const json = JSON.parse(modelVal);
+  const formattedJson = JSON.stringify(json, null, 2);
+  model.setValue(formattedJson);
+}
 
 function saveToLocalStorage(){
   const model = monaco.editor.getModels()[0];
