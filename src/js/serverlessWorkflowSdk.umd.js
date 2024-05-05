@@ -17797,7 +17797,11 @@
                                       `${parentKey}${key}.`
                                   );
                               } else {
-                                  result += `${parentKey}${key} = \"${obj[key]}\"<br/>`;
+                                if (typeof obj[key]=="string"){
+                                    result += `${parentKey}${key} = \"${obj[key]}\"<br/>`;
+                                }else{
+                                    result += `${parentKey}${key} = ${obj[key]}<br/>`;
+                                }
                               }
                           }
                       }
