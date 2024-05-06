@@ -17612,16 +17612,23 @@
           transitions.push.apply(transitions, this.dataConditionsTransitions());
           transitions.push.apply(transitions, this.eventConditionsTransition());
           transitions.push.apply(transitions, this.errorTransitions());
-          transitions.push.apply(transitions, this.naturalTransition(this.stateName(), this.state.transition));
+          transitions.push.apply(transitions, this.naturalTransition(this.stateName(), this.getCleanedName(this.state.transition)));
           transitions.push.apply(transitions, this.endTransition());
           return transitions.reduce(function (p, c) {
               return p + '\n' + c;
           });
       };
       MermaidState.prototype.stateName = function () {
-          var _a;
-          return (_a = this.state.name) === null || _a === void 0 ? void 0 : _a.replace(" ", "_");
+        return this.getCleanedName(this.state.name)
       };
+      MermaidState.prototype.stateNameValue = function(){
+        var _a;
+        return (_a = this.state.name) === null || _a === void 0 ? void 0 : _a.replace(" ", "_")
+      }
+      MermaidState.prototype.getCleanedName = function (s) {
+        var _a;
+        return (_a = s) === null || _a === void 0 ? void 0 : _a.replace(" ", "_").replaceAll("-", "");
+      }
       MermaidState.prototype.startTransition = function () {
           var transitions = [];
           if (this.isFirstState) {
@@ -17638,7 +17645,7 @@
               var stateName_1 = this.stateName();
               dataBasedSwitchState.dataConditions.forEach(function (dataCondition) {
                   var transitionDataCondition = dataCondition;
-                  transitions.push.apply(transitions, _this.naturalTransition(stateName_1, transitionDataCondition.transition, transitionDataCondition.condition));
+                  transitions.push.apply(transitions, _this.naturalTransition(stateName_1, _this.getCleanedName(transitionDataCondition.transition), transitionDataCondition.condition));
                   var endDataCondition = dataCondition; //TODO
                   if (endDataCondition.end) {
                       transitions.push(_this.transitionDescription(stateName_1, endDataCondition.name, endDataCondition.condition));
@@ -17656,7 +17663,7 @@
               var stateName_2 = this.stateName();
               eventBasedSwitchState.eventConditions.forEach(function (eventCondition) {
                   var transitionEventCondition = eventCondition;
-                  transitions.push.apply(transitions, _this.naturalTransition(stateName_2, transitionEventCondition.transition));
+                  transitions.push.apply(transitions, _this.naturalTransition(stateName_2, _this.getCleanedName(transitionEventCondition.transition)));
                   var endEventCondition = eventCondition;
                   if (endEventCondition.end) {
                       transitions.push(_this.transitionDescription(stateName_2, '[*]'));
@@ -17669,7 +17676,7 @@
       MermaidState.prototype.defaultConditionTransition = function (state) {
           var transitions = [];
           if (state.defaultCondition) {
-              transitions.push.apply(transitions, this.naturalTransition(this.stateName(), state.defaultCondition.transition, 'default'));
+              transitions.push.apply(transitions, this.naturalTransition(this.stateName(), this.getCleanedName(state.defaultCondition.transition), 'default'));
           }
           return transitions;
       };
@@ -17684,7 +17691,7 @@
                       transitionLabel = 'Produced event = [' + end.produceEvents.map(function (pe) { return pe.eventRef; }).join(',') + ']';
                   }
               }
-              transitions.push(this.transitionDescription(stateName, '[*]', transitionLabel));
+              transitions.push(this.transitionDescription(stateName, '[*]', this.getCleanedName(transitionLabel)));
           }
           return transitions;
       };
@@ -17708,7 +17715,7 @@
           var transitions = [];
           if (this.state.onErrors) {
               this.state.onErrors.forEach(function (error) {
-                  transitions.push.apply(transitions, _this.naturalTransition(_this.stateName(), error.transition, error.errorRef));
+                  transitions.push.apply(transitions, _this.naturalTransition(_this.stateName(), _this.getCleanedName(error.transition), error.errorRef));
               });
           }
           return transitions;
@@ -17869,7 +17876,7 @@
               : undefined;
       };
       MermaidState.prototype.definitionName = function () {
-          return this.stateName() + ' : ' + this.stateName();
+          return this.stateName() + ' : ' + this.stateNameValue();
       };
       MermaidState.prototype.transitionDescription = function (start, end, label) {
           if (label === void 0) { label = undefined; }
