@@ -17623,11 +17623,11 @@
       };
       MermaidState.prototype.stateNameValue = function(){
         var _a;
-        return (_a = this.state.name) === null || _a === void 0 ? void 0 : _a.replace(" ", "_")
+        return (_a = this.state.name) === null || _a === void 0 ? void 0 : _a.replaceAll(" ", "_")
       }
       MermaidState.prototype.getCleanedName = function (s) {
         var _a;
-        return (_a = s) === null || _a === void 0 ? void 0 : _a.replace(" ", "_").replaceAll("-", "");
+        return (_a = s) === null || _a === void 0 ? void 0 : _a.replaceAll(" ", "_").replaceAll("-", "$$");
       }
       MermaidState.prototype.startTransition = function () {
           var transitions = [];
