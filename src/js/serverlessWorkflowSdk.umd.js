@@ -17780,44 +17780,79 @@
         var state = this.state;
         var descriptions = [];
 
+        function convertObjectToString(obj, parentKey = "") {
+            let result = "";
+            for (let key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    if (Array.isArray(obj[key])) {
+                        obj[key].forEach((item, index) => {
+                            result += convertObjectToString(
+                                item,
+                                `${parentKey}${key}[${index}].`
+                            );
+                        });
+                    } else if (typeof obj[key] === "object") {
+                        result += convertObjectToString(
+                            obj[key],
+                            `${parentKey}${key}.`
+                        );
+                    } else {
+                      if (typeof obj[key]=="string"){
+                          result += `${parentKey}${key} = \"${obj[key]}\"<br/>`;
+                      }else{
+                          result += `${parentKey}${key} = ${obj[key]}<br/>`;
+                      }
+                    }
+                }
+            }
+            return result;
+        }
+
           if (state.actions.length == 1) {
               const action = state.actions[0];
               const functionRef = action.functionRef;
 
               if (functionRef) {
-                  descriptions.push(this.stateDescription(this.stateName(), "Ref Name", functionRef.refName));
+                descriptions.push(this.stateDescription(this.stateName(), "Ref Name", functionRef.refName));
 
-                  function convertObjectToString(obj, parentKey = "") {
-                      let result = "";
-                      for (let key in obj) {
-                          if (obj.hasOwnProperty(key)) {
-                              if (Array.isArray(obj[key])) {
-                                  obj[key].forEach((item, index) => {
-                                      result += convertObjectToString(
-                                          item,
-                                          `${parentKey}${key}[${index}].`
-                                      );
-                                  });
-                              } else if (typeof obj[key] === "object") {
-                                  result += convertObjectToString(
-                                      obj[key],
-                                      `${parentKey}${key}.`
-                                  );
-                              } else {
-                                if (typeof obj[key]=="string"){
-                                    result += `${parentKey}${key} = \"${obj[key]}\"<br/>`;
-                                }else{
-                                    result += `${parentKey}${key} = ${obj[key]}<br/>`;
-                                }
-                              }
-                          }
-                      }
-                      return result;
-                  }
-                  const argumentsString = convertObjectToString(functionRef.arguments);
+                const argumentsString = convertObjectToString(functionRef.arguments);
 
-                  descriptions.push(this.stateDescriptionWithFocus(this.stateName(), "Arguments", argumentsString));
+                descriptions.push(this.stateDescriptionWithFocus(this.stateName(), "Arguments", argumentsString));
               }
+          }
+          else if (state.actions.length>1){
+            let subDescriptionsString = ""
+
+            const subDescriptions = []
+            const actions = state.actions
+
+            for (let i = 0; i < actions.length; i++) {
+                const action = actions[i];
+                const previousAction = i>0 ? actions[i-1] : undefined 
+                const nextAction = i<actions.length - 1? actions[i+1]: undefined
+
+                const functionRef = action.functionRef
+                if (!functionRef) break
+                const refName = functionRef.refName
+                
+                if (!previousAction) subDescriptions.push(this.transitionDescription("[*]", refName, ""))
+                subDescriptions.push(this.customDefinitionName(refName, refName))
+                subDescriptions.push(this.stateDescription(refName, "Type", "Function Ref"))
+                const argumentsString = convertObjectToString(functionRef.arguments)
+
+                subDescriptions.push(this.stateDescriptionWithFocus(refName, "Arguments", argumentsString));
+
+                if (nextAction) subDescriptions.push(this.transitionDescription(refName, nextAction.functionRef.refName, ""))
+                else subDescriptions.push(this.transitionDescription(refName, "[*]", ""))
+            }
+
+            subDescriptionsString = subDescriptions.length > 0
+              ? `state ${this.stateName()}  { ${subDescriptions.reduce(function (p, c) {
+                  return p + "\n" + c;
+              })} }`
+              : undefined;
+
+            if (subDescriptionsString) descriptions.push(subDescriptionsString)
           }
           return descriptions.length > 0
               ? descriptions.reduce(function (p, c) {
@@ -17878,6 +17913,9 @@
       MermaidState.prototype.definitionName = function () {
           return this.stateName() + ' : ' + this.stateNameValue();
       };
+      MermaidState.prototype.customDefinitionName = function (key, value){
+        return key +  `: ${value}`
+      }
       MermaidState.prototype.transitionDescription = function (start, end, label) {
           if (label === void 0) { label = undefined; }
           return start + ' --> ' + end + (label ? ' : ' + label : '');
