@@ -17663,7 +17663,7 @@
               var stateName_2 = this.stateName();
               eventBasedSwitchState.eventConditions.forEach(function (eventCondition) {
                   var transitionEventCondition = eventCondition;
-                  transitions.push.apply(transitions, _this.naturalTransition(stateName_2, _this.getCleanedName(transitionEventCondition.transition)));
+                  transitions.push.apply(transitions, _this.naturalTransition(stateName_2, _this.getCleanedName(transitionEventCondition.transition), transitionEventCondition.eventRef));
                   var endEventCondition = eventCondition;
                   if (endEventCondition.end) {
                       transitions.push(_this.transitionDescription(stateName_2, '[*]'));
