@@ -17835,7 +17835,7 @@
                 if (!functionRef) break
                 const refName = functionRef.refName
                 
-                if (!previousAction) subDescriptions.push(this.transitionDescription("[*]", refName, ""))
+                if (!previousAction) subDescriptions.push(this.startStateTransition(refName))
                 subDescriptions.push(this.customDefinitionName(refName, refName))
                 subDescriptions.push(this.stateDescription(refName, "Type", "Function Ref"))
                 const argumentsString = convertObjectToString(functionRef.arguments)
@@ -17843,7 +17843,7 @@
                 subDescriptions.push(this.stateDescriptionWithFocus(refName, "Arguments", argumentsString));
 
                 if (nextAction) subDescriptions.push(this.transitionDescription(refName, nextAction.functionRef.refName, ""))
-                else subDescriptions.push(this.transitionDescription(refName, "[*]", ""))
+                else subDescriptions.push(this.endStateTransition(refName))
             }
 
             subDescriptionsString = subDescriptions.length > 0
@@ -17914,11 +17914,17 @@
           return this.stateName() + ' : ' + this.stateNameValue();
       };
       MermaidState.prototype.customDefinitionName = function (key, value){
-        return key +  `: ${value}`
+        return `${key} : ${value}`
       }
       MermaidState.prototype.transitionDescription = function (start, end, label) {
           if (label === void 0) { label = undefined; }
           return start + ' --> ' + end + (label ? ' : ' + label : '');
+        };
+      MermaidState.prototype.startStateTransition = function (start){
+          return "[*] --> " + start 
+      };
+      MermaidState.prototype.endStateTransition = function (end){
+        return end + " --> [*]"
       };
       MermaidState.prototype.stateDescription = function (stateName, description, value) {
           return stateName + (" : " + description + " = " + value);

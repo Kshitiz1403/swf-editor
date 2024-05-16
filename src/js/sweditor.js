@@ -128,7 +128,6 @@ function generateDiagram() {
   const mermaidSource = new MermaidDiagram(
     Specification.Workflow.fromSource(modelVal)
   ).sourceCode();
-  console.log(mermaidSource)
   const mermaidDiv = document.querySelector(".workflowdiagram");
 
   mermaid.mermaidAPI.render("mermaid", mermaidSource, (svgCode) => {
