@@ -17595,6 +17595,28 @@
       return builder(workflowExecTimeoutBuildingFn);
   }
 
+  function lightweightHash() {
+    let hash = 0;
+    if (this.length === 0) return hash;
+    for (let i = 0; i < this.length; i++) {
+      const char = this.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash &= hash; // Convert to 32bit integer
+    }
+    let negative = false
+    if (hash <0){
+        negative = true
+    }
+    hash = Math.abs(hash);
+    // Convert to base36 string (contains only alphanumeric characters)
+    let hashString =  hash.toString(36);
+    if (negative) hashString = "n" + hashString
+    else hashString=  "p" + hashString
+
+    return hashString
+  }
+
+  String.prototype.hashCode = lightweightHash
   var MermaidState = /** @class */ (function () {
       function MermaidState(state, isFirstState) {
           if (isFirstState === void 0) { isFirstState = false; }
@@ -17628,7 +17650,7 @@
       }
       MermaidState.prototype.getCleanedName = function (s) {
         var _a;
-        return (_a = s) === null || _a === void 0 ? void 0 : _a.replaceAll(" ", "_").replaceAll("-", "$$");
+        return (_a = s) === null || _a === void 0 ? void 0 : _a.hashCode()
       }
       MermaidState.prototype.startTransition = function () {
           var transitions = [];
@@ -17835,16 +17857,21 @@
                 const functionRef = action.functionRef
                 if (!functionRef) break
                 const refName = functionRef.refName
+
+                const subStateName = refName + i
+                const previousStateName = previousAction? previousAction.functionRef.refName + (i-1) :undefined
+                const nextStateName = nextAction? nextAction.functionRef.refName + (i+1) :undefined
                 
-                if (!previousAction) subDescriptions.push(this.startStateTransition(refName))
-                subDescriptions.push(this.customDefinitionName(refName, refName))
-                subDescriptions.push(this.stateDescription(refName, "Type", "Function Ref"))
+                if (!previousAction) subDescriptions.push(this.startStateTransition(subStateName))
+                subDescriptions.push(this.customDefinitionName(subStateName, refName ))
+                subDescriptions.push(this.stateDescription(subStateName, "type", "Function Ref"))
+                subDescriptions.push(this.stateDescription(subStateName, "Ref Name", refName))
                 const argumentsString = convertObjectToString(functionRef.arguments)
 
-                subDescriptions.push(this.stateDescriptionWithFocus(refName, "Arguments", argumentsString));
+                subDescriptions.push(this.stateDescriptionWithFocus(subStateName, "Arguments", argumentsString));
 
-                if (nextAction) subDescriptions.push(this.transitionDescription(refName, nextAction.functionRef.refName, ""))
-                else subDescriptions.push(this.endStateTransition(refName))
+                if (nextAction) subDescriptions.push(this.transitionDescription(subStateName, nextStateName, ""))
+                else subDescriptions.push(this.endStateTransition(subStateName))
             }
 
             subDescriptionsString = subDescriptions.length > 0
