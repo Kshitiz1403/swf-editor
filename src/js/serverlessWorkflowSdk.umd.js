@@ -17836,6 +17836,8 @@
               const functionRef = action.functionRef;
 
               if (functionRef) {
+                if (functionRef.invoke=="async")descriptions.push(this.stateDescription(this.stateName(), "invoke", functionRef.invoke))
+
                 descriptions.push(this.stateDescription(this.stateName(), "Ref Name", functionRef.refName));
 
                 const argumentsString = convertObjectToString(functionRef.arguments);
@@ -17858,13 +17860,16 @@
                 if (!functionRef) break
                 const refName = functionRef.refName
 
-                const subStateName = state.name + refName + i
-                const previousStateName = previousAction? state.name + previousAction.functionRef.refName + (i-1) :undefined
-                const nextStateName = nextAction? state.name + nextAction.functionRef.refName + (i+1) :undefined
+                const subStateName = this.stateName() + refName + i
+                const previousStateName = previousAction? this.stateName() + previousAction.functionRef.refName + (i-1) :undefined
+                const nextStateName = nextAction? this.stateName() + nextAction.functionRef.refName + (i+1) :undefined
                 
                 if (!previousAction) subDescriptions.push(this.startStateTransition(subStateName))
                 subDescriptions.push(this.customDefinitionName(subStateName, refName ))
                 subDescriptions.push(this.stateDescription(subStateName, "type", "Function Ref"))
+
+                if (functionRef.invoke=="async")subDescriptions.push(this.stateDescription(subStateName, "invoke", functionRef.invoke))
+
                 subDescriptions.push(this.stateDescription(subStateName, "Ref Name", refName))
                 const argumentsString = convertObjectToString(functionRef.arguments)
 
