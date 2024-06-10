@@ -17656,7 +17656,7 @@
           var transitions = [];
           if (this.isFirstState) {
               var stateName = this.stateName();
-              transitions.push(this.transitionDescription('[*]', stateName));
+              transitions.push(this.startStateTransition(stateName));
           }
           return transitions;
       };
@@ -17858,9 +17858,9 @@
                 if (!functionRef) break
                 const refName = functionRef.refName
 
-                const subStateName = refName + i
-                const previousStateName = previousAction? previousAction.functionRef.refName + (i-1) :undefined
-                const nextStateName = nextAction? nextAction.functionRef.refName + (i+1) :undefined
+                const subStateName = state.name + refName + i
+                const previousStateName = previousAction? state.name + previousAction.functionRef.refName + (i-1) :undefined
+                const nextStateName = nextAction? state.name + nextAction.functionRef.refName + (i+1) :undefined
                 
                 if (!previousAction) subDescriptions.push(this.startStateTransition(subStateName))
                 subDescriptions.push(this.customDefinitionName(subStateName, refName ))
@@ -17948,11 +17948,11 @@
           if (label === void 0) { label = undefined; }
           return start + ' --> ' + end + (label ? ' : ' + label : '');
         };
-      MermaidState.prototype.startStateTransition = function (start){
-          return "[*] --> " + start 
+      MermaidState.prototype.startStateTransition = function (stateName){
+          return "[*] --> " + stateName 
       };
-      MermaidState.prototype.endStateTransition = function (end){
-        return end + " --> [*]"
+      MermaidState.prototype.endStateTransition = function (stateName){
+        return stateName + " --> [*]"
       };
       MermaidState.prototype.stateDescription = function (stateName, description, value) {
           return stateName + (" : " + description + " = " + value);
