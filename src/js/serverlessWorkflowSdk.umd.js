@@ -17834,11 +17834,14 @@
           if (state.actions.length == 1) {
               const action = state.actions[0];
               const functionRef = action.functionRef;
+              const retryRef = action.retryRef
 
               if (functionRef) {
                 if (functionRef.invoke=="async")descriptions.push(this.stateDescription(this.stateName(), "invoke", functionRef.invoke))
 
                 descriptions.push(this.stateDescription(this.stateName(), "Ref Name", functionRef.refName));
+
+                if (retryRef)descriptions.push(this.stateDescription(this.stateName(), "Retry Ref", retryRef));
 
                 const argumentsString = convertObjectToString(functionRef.arguments);
 
@@ -17859,6 +17862,7 @@
                 const functionRef = action.functionRef
                 if (!functionRef) break
                 const refName = functionRef.refName
+                const retryRef = action.retryRef
 
                 const subStateName = this.stateName() + refName + i
                 const previousStateName = previousAction? this.stateName() + previousAction.functionRef.refName + (i-1) :undefined
@@ -17871,6 +17875,8 @@
                 if (functionRef.invoke=="async")subDescriptions.push(this.stateDescription(subStateName, "invoke", functionRef.invoke))
 
                 subDescriptions.push(this.stateDescription(subStateName, "Ref Name", refName))
+                if (retryRef)subDescriptions.push(this.stateDescription(subStateName, "Retry Ref", retryRef))
+
                 const argumentsString = convertObjectToString(functionRef.arguments)
 
                 subDescriptions.push(this.stateDescriptionWithFocus(subStateName, "Arguments", argumentsString));
