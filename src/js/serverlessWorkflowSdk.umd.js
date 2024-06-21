@@ -17831,58 +17831,86 @@
             return result;
         }
 
-          if (state.actions.length == 1) {
-              const action = state.actions[0];
-              const functionRef = action.functionRef;
-              const retryRef = action.retryRef
+        const getFunctionRefName = (functionRef) =>{
+            if (functionRef && typeof functionRef==="object") return functionRef.refName
+            else if (functionRef && typeof functionRef==="string") return functionRef
+            return undefined
+        }
 
-              if (functionRef) {
-                if (functionRef.invoke=="async")descriptions.push(this.stateDescription(this.stateName(), "invoke", functionRef.invoke))
+        const getCustomInvokeType = (functionRef)=>{
+            const customInvokeType = functionRef.invoke && functionRef.invoke!="sync" ? functionRef.invoke : undefined
+            return customInvokeType
+        }
 
-                descriptions.push(this.stateDescription(this.stateName(), "Ref Name", functionRef.refName));
+        const getCustomArguments = (functionRef) =>{
+            const customArguments = typeof functionRef ==="object"? convertObjectToString(functionRef.arguments) : undefined
+            return customArguments
+        }
 
-                if (retryRef)descriptions.push(this.stateDescription(this.stateName(), "Retry Ref", retryRef));
+        if (state.actions.length == 1) {
+            const action = state.actions[0];
+            const functionRef = action.functionRef;
+            const retryRef = action.retryRef
+            const refName = getFunctionRefName(functionRef)
+            const customInvokeType = getCustomInvokeType(functionRef)
+            const customArguments = getCustomArguments(functionRef)
 
-                const argumentsString = convertObjectToString(functionRef.arguments);
-
-                descriptions.push(this.stateDescriptionWithFocus(this.stateName(), "Arguments", argumentsString));
-              }
-          }
-          else if (state.actions.length>1){
+            descriptions.push(this.stateDescription(this.stateName(), "Ref Name", refName));
+            if (customInvokeType) descriptions.push(this.stateDescription(this.stateName(), "invoke", customInvokeType))
+            if (retryRef) descriptions.push(this.stateDescription(this.stateName(), "Retry Ref", retryRef));
+            if (customArguments) descriptions.push(this.stateDescriptionWithFocus(this.stateName(), "Arguments", customArguments));
+        }
+        else if (state.actions.length>1){
             let subDescriptionsString = ""
 
             const subDescriptions = []
             const actions = state.actions
 
+            const getActionName = (actionIndex) =>{
+                return this.stateName() + getFunctionRefName(actions[actionIndex].functionRef) + actionIndex
+            }
+
+            const getNextActionName = (actionIndex) =>{
+                if (actionIndex<actions.length-1){
+                    return this.stateName() + getFunctionRefName(actions[actionIndex+1].functionRef) + (actionIndex+1)
+                }
+                return undefined
+            }
+
+            const getPreviousActionName = (actionIndex) =>{
+                if (actionIndex>0){
+                    return this.stateName() + getFunctionRefName(actions[actionIndex-1].functionRef) + (actionIndex-1)
+                }
+                return undefined
+            }
+
             for (let i = 0; i < actions.length; i++) {
                 const action = actions[i];
-                const previousAction = i>0 ? actions[i-1] : undefined 
-                const nextAction = i<actions.length - 1? actions[i+1]: undefined
 
                 const functionRef = action.functionRef
                 if (!functionRef) break
-                const refName = functionRef.refName
+                const refName = getFunctionRefName(functionRef)
                 const retryRef = action.retryRef
+                const customInvokeType = getCustomInvokeType(functionRef)
+                const customArguments = getCustomArguments(functionRef)
 
-                const subStateName = this.stateName() + refName + i
-                const previousStateName = previousAction? this.stateName() + previousAction.functionRef.refName + (i-1) :undefined
-                const nextStateName = nextAction? this.stateName() + nextAction.functionRef.refName + (i+1) :undefined
+                const actionName = getActionName(i);
+                const previousActionName = getPreviousActionName(i);
+                const nextActionName = getNextActionName(i)
                 
-                if (!previousAction) subDescriptions.push(this.startStateTransition(subStateName))
-                subDescriptions.push(this.customDefinitionName(subStateName, refName ))
-                subDescriptions.push(this.stateDescription(subStateName, "type", "Function Ref"))
+                if (!previousActionName) subDescriptions.push(this.startStateTransition(actionName))
+                subDescriptions.push(this.customDefinitionName(actionName, refName ))
+                subDescriptions.push(this.stateDescription(actionName, "type", "Function Ref"))
 
-                if (functionRef.invoke=="async")subDescriptions.push(this.stateDescription(subStateName, "invoke", functionRef.invoke))
+                if (customInvokeType) subDescriptions.push(this.stateDescription(actionName, "invoke", customInvokeType))
 
-                subDescriptions.push(this.stateDescription(subStateName, "Ref Name", refName))
-                if (retryRef)subDescriptions.push(this.stateDescription(subStateName, "Retry Ref", retryRef))
+                subDescriptions.push(this.stateDescription(actionName, "Ref Name", refName))
+                if (retryRef)subDescriptions.push(this.stateDescription(actionName, "Retry Ref", retryRef))
 
-                const argumentsString = convertObjectToString(functionRef.arguments)
+                if (customArguments) subDescriptions.push(this.stateDescriptionWithFocus(actionName, "Arguments", customArguments));
 
-                subDescriptions.push(this.stateDescriptionWithFocus(subStateName, "Arguments", argumentsString));
-
-                if (nextAction) subDescriptions.push(this.transitionDescription(subStateName, nextStateName, ""))
-                else subDescriptions.push(this.endStateTransition(subStateName))
+                if (nextActionName) subDescriptions.push(this.transitionDescription(actionName, nextActionName, ""))
+                else subDescriptions.push(this.endStateTransition(actionName))
             }
 
             subDescriptionsString = subDescriptions.length > 0
@@ -17892,7 +17920,7 @@
               : undefined;
 
             if (subDescriptionsString) descriptions.push(subDescriptionsString)
-          }
+        }
           return descriptions.length > 0
               ? descriptions.reduce(function (p, c) {
                   return p + "\n" + c;
