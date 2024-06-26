@@ -17617,6 +17617,7 @@
   }
 
   String.prototype.hashCode = lightweightHash
+  
   var MermaidState = /** @class */ (function () {
       function MermaidState(state, isFirstState) {
           if (isFirstState === void 0) { isFirstState = false; }
@@ -17668,11 +17669,12 @@
               var stateName_1 = this.stateName();
               dataBasedSwitchState.dataConditions.forEach(function (dataCondition) {
                   var transitionDataCondition = dataCondition;
-                  transitions.push.apply(transitions, _this.naturalTransition(stateName_1, _this.getCleanedName(transitionDataCondition.transition), transitionDataCondition.condition));
                   var endDataCondition = dataCondition; //TODO
-                  if (endDataCondition.end) {
-                      transitions.push(_this.transitionDescription(stateName_1, endDataCondition.name, endDataCondition.condition));
-                  }
+                if (endDataCondition.end) {
+                    transitions.push(_this.naturalTransition(stateName_1, "[*]", endDataCondition.condition))
+                }else{
+                    transitions.push.apply(transitions, _this.naturalTransition(stateName_1, _this.getCleanedName(transitionDataCondition.transition), transitionDataCondition.condition));
+                }
               });
               transitions.push.apply(transitions, this.defaultConditionTransition(dataBasedSwitchState));
           }
