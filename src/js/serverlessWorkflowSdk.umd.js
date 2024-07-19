@@ -17808,26 +17808,28 @@
         function convertObjectToString(obj, parentKey = "") {
             let result = "";
             for (let key in obj) {
-                if (obj.hasOwnProperty(key)) {
-                    if (Array.isArray(obj[key])) {
-                        obj[key].forEach((item, index) => {
-                            result += convertObjectToString(
-                                item,
-                                `${parentKey}${key}[${index}].`
-                            );
-                        });
-                    } else if (typeof obj[key] === "object") {
+                if (!obj.hasOwnProperty(key)) {
+                    continue
+                }
+
+                if (Array.isArray(obj[key])) {
+                    obj[key].forEach((item, index) => {
                         result += convertObjectToString(
-                            obj[key],
-                            `${parentKey}${key}.`
+                            item,
+                            `${parentKey}${key}[${index}].`
                         );
-                    } else {
-                      if (typeof obj[key]=="string"){
-                          result += `${parentKey}${key} = \"${obj[key]}\"<br/>`;
-                      }else{
-                          result += `${parentKey}${key} = ${obj[key]}<br/>`;
-                      }
-                    }
+                    });
+                } else if (typeof obj[key] === "object") {
+                    result += convertObjectToString(
+                        obj[key],
+                        `${parentKey}${key}.`
+                    );
+                } else if (typeof obj[key]=="string"){
+                    let value = obj[key]
+                    value = value.replaceAll(":", "#58;") // replace : with html code
+                    result += `${parentKey}${key} = \"${value}\"<br/>`;
+                } else{
+                    result += `${parentKey}${key} = ${obj[key]}<br/>`;
                 }
             }
             return result;
