@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" data-name="vs/editor/editor.main" href="css/editor/editor.main.css" />
     <script src="./js/serverlessWorkflowSdk.umd.js"></script>
+    <script src="https://unpkg.com/panzoom@9.4.0/dist/panzoom.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@9.4.3/dist/mermaid.min.js"></script>
     <script>
         mermaid.mermaidAPI.initialize({
@@ -54,7 +55,7 @@
                                 onclick="goFullScreen(this.value);return false;">Go full screen</a>
                         </div>
 
-                        <div class="workflowdiagram">
+                        <div class="workflowdiagram" style="overflow: hidden; height: 94vh;">
                             <br />
                         </div>
                     </div>
@@ -104,9 +105,14 @@
 
     </script>
     <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-mockjax/1.5.3/jquery.mockjax.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mockjax/1.5.3/jquery.mockjax.min.js"></script>
     <script src="js/wrscript.js"></script>
     <script src="js/jquery-form-serializer.js"></script>
+    <script>
+        window.onload = function(){
+            panzoom(document.querySelector("#mermaid"))
+        }
+    </script>
 </body>
 
 </html>
