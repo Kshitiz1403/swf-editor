@@ -40,7 +40,7 @@
 
                         <div class="d-flex justify-content-between">
                             <a href="#" class="btn btn-primary btn-sm"
-                                onclick="generateDiagram(this.value);return false;">Generate workflow diagram</a>
+                                onclick="generateDiagram(this.value);applyPanZoom();return false;">Generate workflow diagram</a>
                             <div class="d-flex">
                                 <a href="#" class="btn btn-primary btn-sm"
                                     onclick="generateImageFromSVG(document.getElementById('quality').value);return false;">Generate
@@ -79,6 +79,10 @@
     <script>
         var modelUri = monaco.Uri.parse("https://raw.githubusercontent.com/serverlessworkflow/specification/0.8.x/schema/workflow.json");
 
+        const applyPanZoom = () => {
+            panzoom(document.querySelector("#mermaid"));
+        }
+
         const lastSWFJson = localStorage.getItem(LOCAL_STORAGE_SWF_JSON);
 
         if (lastSWFJson != null) {
@@ -110,7 +114,7 @@
     <script src="js/jquery-form-serializer.js"></script>
     <script>
         window.onload = function(){
-            panzoom(document.querySelector("#mermaid"))
+            applyPanZoom();
         }
     </script>
 </body>
