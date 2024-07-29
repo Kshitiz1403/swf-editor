@@ -133,6 +133,7 @@ function generateDiagram() {
   mermaid.mermaidAPI.render("mermaid", mermaidSource, (svgCode) => {
     mermaidDiv.innerHTML = svgCode;
   });
+  panzoom(document.querySelector("#mermaid"))
 }
 
 
