@@ -17636,7 +17636,7 @@
           transitions.push.apply(transitions, this.dataConditionsTransitions());
           transitions.push.apply(transitions, this.eventConditionsTransition());
           transitions.push.apply(transitions, this.errorTransitions());
-          transitions.push.apply(transitions, this.naturalTransition(this.stateName(), this.getCleanedName(this.state.transition)));
+          if (this.state.type!="event") transitions.push.apply(transitions, this.naturalTransition(this.stateName(), this.getCleanedName(this.state.transition)));
           transitions.push.apply(transitions, this.endTransition());
           return transitions.reduce(function (p, c) {
               return p + '\n' + c;
@@ -17684,18 +17684,32 @@
           var _this = this;
           var transitions = [];
           var eventBasedSwitchState = this.state;
-          if (eventBasedSwitchState.eventConditions) {
-              var stateName_2 = this.stateName();
-              eventBasedSwitchState.eventConditions.forEach(function (eventCondition) {
-                  var transitionEventCondition = eventCondition;
-                  transitions.push.apply(transitions, _this.naturalTransition(stateName_2, _this.getCleanedName(transitionEventCondition.transition), transitionEventCondition.eventRef));
-                  var endEventCondition = eventCondition;
-                  if (endEventCondition.end) {
-                      transitions.push(_this.transitionDescription(stateName_2, '[*]'));
-                  }
-              });
-              transitions.push.apply(transitions, this.defaultConditionTransition(eventBasedSwitchState));
+          const transitionTo = eventBasedSwitchState.transition
+
+          if (eventBasedSwitchState.type=="event"){
+            const allPossibleEvents = []
+            const onEvents = eventBasedSwitchState.onEvents
+            onEvents.map(event => {
+                const eventRefs = event.eventRefs
+                allPossibleEvents.push(...eventRefs)
+            })
+
+            const eventsString = allPossibleEvents.join(", ")
+
+            transitions.push(this.transitionDescription(this.stateName(), _this.getCleanedName(transitionTo), eventsString ))
           }
+        //   if (eventBasedSwitchState.eventConditions) {
+        //       var stateName_2 = this.stateName();
+        //       eventBasedSwitchState.eventConditions.forEach(function (eventCondition) {
+        //           var transitionEventCondition = eventCondition;
+        //           transitions.push.apply(transitions, _this.naturalTransition(stateName_2, _this.getCleanedName(transitionEventCondition.transition), transitionEventCondition.eventRef));
+        //           var endEventCondition = eventCondition;
+        //           if (endEventCondition.end) {
+        //               transitions.push(_this.transitionDescription(stateName_2, '[*]'));
+        //           }
+        //       });
+            //   transitions.push.apply(transitions, this.defaultConditionTransition(eventBasedSwitchState));
+        //   }
           return transitions;
       };
       MermaidState.prototype.defaultConditionTransition = function (state) {
@@ -17827,9 +17841,9 @@
                 } else if (typeof obj[key]=="string"){
                     let value = obj[key]
                     value = value.replaceAll(":", "#58;") // replace : with html code
-                    result += `${parentKey}${key} = \"${value}\"<br/>`;
+                    result += `<b>${parentKey}${key}</b> = \"${value}\"<br/>`;
                 } else{
-                    result += `${parentKey}${key} = ${obj[key]}<br/>`;
+                    result += `<b>${parentKey}${key}</b> = ${obj[key]}<br/>`;
                 }
             }
             return result;
