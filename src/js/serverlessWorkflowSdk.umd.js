@@ -17694,7 +17694,7 @@
                 allPossibleEvents.push(...eventRefs)
             })
 
-            const eventsString = allPossibleEvents.join(", ")
+            const eventsString = allPossibleEvents.join("<br/>")
 
             transitions.push(this.transitionDescription(this.stateName(), _this.getCleanedName(transitionTo), eventsString ))
           }
