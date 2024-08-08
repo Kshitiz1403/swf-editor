@@ -273,10 +273,13 @@ Split(['#editor-col', '#diagram-col'], {
   onDrag: () => {
       editor.layout({ width: 0, height: 0 })
 
-      const sizeEditorWidth = document.querySelector('#editor-col').offsetWidth;
-      const sizeEditorHeight = document.querySelector('#editor-col').offsetHeight;
+      window.requestAnimationFrame(()=>{
 
-      editor.layout({ width: sizeEditorWidth, height: sizeEditorHeight })
+        const sizeEditor = document.querySelector('#editor-col').getBoundingClientRect();
+  
+        editor.layout({ width: sizeEditor.width, height: sizeEditor.height })
+      })
+
   },
   onDragEnd:(sizes)=>{
     localStorage.setItem(LOCAL_STORAGE_SPLIT_SIZES, JSON.stringify(sizes))
