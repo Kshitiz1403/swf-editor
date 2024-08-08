@@ -117,6 +117,7 @@ var examplesMap = {};
 examplesMap["customerapplication"] = customerApplication;
 
 var LOCAL_STORAGE_SWF_JSON = "lastSWFJson";
+var LOCAL_STORAGE_SPLIT_SIZES = "split-sizes";
 
 
 function generateDiagram() {
@@ -258,7 +259,17 @@ function changeTheme(theme) {
   }
 }
 
+var sizes = localStorage.getItem(LOCAL_STORAGE_SPLIT_SIZES)
+
+if (sizes) {
+    sizes = JSON.parse(sizes)
+} else {
+    sizes = [50, 50] // default sizes
+}
+
+
 Split(['#editor-col', '#diagram-col'], {
+  sizes: sizes,
   onDrag: () => {
       editor.layout({ width: 0, height: 0 })
 
@@ -266,5 +277,8 @@ Split(['#editor-col', '#diagram-col'], {
       const sizeEditorHeight = document.querySelector('#editor-col').offsetHeight;
 
       editor.layout({ width: sizeEditorWidth, height: sizeEditorHeight })
-  }
+  },
+  onDragEnd:(sizes)=>{
+    localStorage.setItem(LOCAL_STORAGE_SPLIT_SIZES, JSON.stringify(sizes))
+  },
 })
