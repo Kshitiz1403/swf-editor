@@ -13,6 +13,7 @@
     <script src="./js/serverlessWorkflowSdk.umd.js"></script>
     <script src="https://unpkg.com/panzoom@9.4.0/dist/panzoom.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@9.4.3/dist/mermaid.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/split.js/1.6.0/split.min.js"></script>
     <script>
         mermaid.mermaidAPI.initialize({
             startOnLoad: false
@@ -23,8 +24,8 @@
 
 <body>
     <div style="padding-left: 20px; padding-right: 20px;">
-        <div class="row">
-            <div class="col">
+        <div class="split">
+            <div id="editor-col">
                 <div class="card">
                     <div class="card-body" style="height: 99vh; padding-right: 0; padding-left: 0;">
                         <div class="d-flex justify-content-end" style="position: absolute; z-index: 1; right: 0;">
@@ -34,7 +35,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col">
+            <div id="diagram-col">
                 <div class="card">
                     <div class="card-body">
 
@@ -95,7 +96,7 @@
             }], enableSchemaRequest: true
         });
 
-        monaco.editor.create(document.getElementById("sweditor"), {
+        const editor = monaco.editor.create(document.getElementById("sweditor"), {
             model: model
         });
 

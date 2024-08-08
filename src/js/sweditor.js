@@ -257,3 +257,14 @@ function changeTheme(theme) {
     monaco.editor.setTheme(theme);
   }
 }
+
+Split(['#editor-col', '#diagram-col'], {
+  onDrag: () => {
+      editor.layout({ width: 0, height: 0 })
+
+      const sizeEditorWidth = document.querySelector('#editor-col').offsetWidth;
+      const sizeEditorHeight = document.querySelector('#editor-col').offsetHeight;
+
+      editor.layout({ width: sizeEditorWidth, height: sizeEditorHeight })
+  }
+})
