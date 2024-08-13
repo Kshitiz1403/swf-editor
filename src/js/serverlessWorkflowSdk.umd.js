@@ -17887,7 +17887,7 @@
             const actions = state.actions
 
             const getActionName = (actionIndex) =>{
-                return this.stateName() + getFunctionRefName(actions[actionIndex].functionRef) + actionIndex
+                return this.stateName() + (actions[actionIndex].name || getFunctionRefName(actions[actionIndex].functionRef)) + actionIndex
             }
 
             const getNextActionName = (actionIndex) =>{
@@ -17910,6 +17910,7 @@
                 const functionRef = action.functionRef
                 if (!functionRef) break
                 const refName = getFunctionRefName(functionRef)
+                const stateAactionName = action.name || refName
                 const retryRef = action.retryRef
                 const customInvokeType = getCustomInvokeType(functionRef)
                 const customArguments = getCustomArguments(functionRef)
@@ -17919,7 +17920,7 @@
                 const nextActionName = getNextActionName(i)
                 
                 if (!previousActionName) subDescriptions.push(this.startStateTransition(actionName))
-                subDescriptions.push(this.customDefinitionName(actionName, refName ))
+                subDescriptions.push(this.customDefinitionName(actionName, stateAactionName ))
                 subDescriptions.push(this.stateDescription(actionName, "type", "Function Ref"))
 
                 if (customInvokeType) subDescriptions.push(this.stateDescription(actionName, "invoke", customInvokeType))
