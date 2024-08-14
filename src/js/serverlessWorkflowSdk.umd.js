@@ -17871,18 +17871,13 @@
             const actionDataFilter = action.actionDataFilter
             if (!actionDataFilter) return null
 
-            let useResults = true
-
             if (actionDataFilter.useResults===false){
-                useResults = false
+                return null
             }
 
             const resultsJQ = actionDataFilter.results
 
-            if (useResults){
-                return `<center>${resultsJQ}</center>`
-            }
-            return null
+            return `<center>${resultsJQ}</center>`
         }
 
         if (state.actions.length == 1) {
