@@ -17867,6 +17867,24 @@
             return customArguments
         }
 
+        const getActionDataFilter = (action) =>{
+            const actionDataFilter = action.actionDataFilter
+            if (!actionDataFilter) return null
+
+            let useResults = true
+
+            if (actionDataFilter.results===false){
+                useResults = false
+            }
+
+            const resultsJQ = actionDataFilter.results
+
+            if (useResults){
+                return `<center>${resultsJQ}</center>`
+            }
+            return null
+        }
+
         if (state.actions.length == 1) {
             const action = state.actions[0];
             const functionRef = action.functionRef;
@@ -17874,11 +17892,13 @@
             const refName = getFunctionRefName(functionRef)
             const customInvokeType = getCustomInvokeType(functionRef)
             const customArguments = getCustomArguments(functionRef)
+            const actionDataFilter = getActionDataFilter(action)
 
             descriptions.push(this.stateDescription(this.stateName(), "Ref Name", refName));
             if (customInvokeType) descriptions.push(this.stateDescription(this.stateName(), "invoke", customInvokeType))
             if (retryRef) descriptions.push(this.stateDescription(this.stateName(), "Retry Ref", retryRef));
             if (customArguments) descriptions.push(this.stateDescriptionWithFocus(this.stateName(), "Arguments", customArguments));
+            if (actionDataFilter) descriptions.push(this.stateDescriptionWithFocus(this.stateName(), "Action Data Filter", actionDataFilter));
         }
         else if (state.actions.length>1){
             let subDescriptionsString = ""
@@ -17914,6 +17934,7 @@
                 const retryRef = action.retryRef
                 const customInvokeType = getCustomInvokeType(functionRef)
                 const customArguments = getCustomArguments(functionRef)
+                const actionDataFilter = getActionDataFilter(action)    
 
                 const actionName = getActionName(i);
                 const previousActionName = getPreviousActionName(i);
@@ -17929,6 +17950,9 @@
                 if (retryRef)subDescriptions.push(this.stateDescription(actionName, "Retry Ref", retryRef))
 
                 if (customArguments) subDescriptions.push(this.stateDescriptionWithFocus(actionName, "Arguments", customArguments));
+
+                if (actionDataFilter) subDescriptions.push(this.stateDescriptionWithFocus(actionName, "Action Data Filter", actionDataFilter));
+
 
                 if (nextActionName) subDescriptions.push(this.transitionDescription(actionName, nextActionName, ""))
                 else subDescriptions.push(this.endStateTransition(actionName))
