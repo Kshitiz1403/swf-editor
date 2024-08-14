@@ -17873,7 +17873,7 @@
 
             let useResults = true
 
-            if (actionDataFilter.results===false){
+            if (actionDataFilter.useResults===false){
                 useResults = false
             }
 
