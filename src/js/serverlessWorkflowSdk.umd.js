@@ -17616,6 +17616,38 @@
     return hashString
   }
 
+  function convertObjectToString(obj, parentKey = "", disableKeyHighlight = false) {
+    let result = "";
+    for (let key in obj) {
+        if (!obj.hasOwnProperty(key)) {
+            continue
+        }
+
+        if (Array.isArray(obj[key])) {
+            obj[key].forEach((item, index) => {
+                result += convertObjectToString(
+                    item,
+                    `${parentKey}${key}[${index}].`,
+                    disableKeyHighlight
+                );
+            });
+        } else if (typeof obj[key] === "object") {
+            result += convertObjectToString(
+                obj[key],
+                `${parentKey}${key}.`,
+                disableKeyHighlight
+            );
+        } else if (typeof obj[key]=="string"){
+            let value = obj[key]
+            value = value.replaceAll(":", "#58;") // replace : with html code
+            result += `${disableKeyHighlight?"":"<b>"}${parentKey}${key}${disableKeyHighlight?"":"</b>"} = \"${value}\"<br/>`;
+        } else{
+            result += `${disableKeyHighlight?"":"<b>"}${parentKey}${key}${disableKeyHighlight?"":"</b>"} = ${obj[key]}<br/>`;
+        }
+    }
+    return result;
+}
+
   String.prototype.hashCode = lightweightHash
   
   var MermaidState = /** @class */ (function () {
@@ -17689,11 +17721,18 @@
               var stateName_2 = this.stateName();
               eventBasedSwitchState.eventConditions.forEach(function (eventCondition) {
                   var transitionEventCondition = eventCondition;
-                  transitions.push.apply(transitions, _this.naturalTransition(stateName_2, _this.getCleanedName(transitionEventCondition.transition), transitionEventCondition.eventRef));
-                  var endEventCondition = eventCondition;
-                  if (endEventCondition.end) {
-                      transitions.push(_this.transitionDescription(stateName_2, '[*]'));
-                  }
+
+                let transitionWithMetadata = transitionEventCondition.eventRef
+
+                if (eventCondition.metadata){
+                    transitionWithMetadata += `<br><b><center>Metadata</center></b>${convertObjectToString(eventCondition.metadata, "", true)}`
+                }
+                  transitions.push.apply(transitions, _this.naturalTransition(stateName_2, _this.getCleanedName(transitionEventCondition.transition), transitionWithMetadata));
+                    
+                    var endEventCondition = eventCondition;
+                    if (endEventCondition.end) {
+                        transitions.push(_this.transitionDescription(stateName_2, '[*]'));
+                    }
               });
               transitions.push.apply(transitions, this.defaultConditionTransition(eventBasedSwitchState));
           }
@@ -17820,36 +17859,6 @@
         var _a;
         var state = this.state;
         var descriptions = [];
-
-        function convertObjectToString(obj, parentKey = "") {
-            let result = "";
-            for (let key in obj) {
-                if (!obj.hasOwnProperty(key)) {
-                    continue
-                }
-
-                if (Array.isArray(obj[key])) {
-                    obj[key].forEach((item, index) => {
-                        result += convertObjectToString(
-                            item,
-                            `${parentKey}${key}[${index}].`
-                        );
-                    });
-                } else if (typeof obj[key] === "object") {
-                    result += convertObjectToString(
-                        obj[key],
-                        `${parentKey}${key}.`
-                    );
-                } else if (typeof obj[key]=="string"){
-                    let value = obj[key]
-                    value = value.replaceAll(":", "#58;") // replace : with html code
-                    result += `<b>${parentKey}${key}</b> = \"${value}\"<br/>`;
-                } else{
-                    result += `<b>${parentKey}${key}</b> = ${obj[key]}<br/>`;
-                }
-            }
-            return result;
-        }
 
         const getFunctionRefName = (functionRef) =>{
             if (functionRef && typeof functionRef==="object") return functionRef.refName
