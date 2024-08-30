@@ -17679,7 +17679,7 @@
       };
       MermaidState.prototype.stateNameValue = function(){
         var _a;
-        return (_a = this.state.name) === null || _a === void 0 ? void 0 : _a.replaceAll(" ", "_")
+        return (_a = this.state.name) === null || _a === void 0 ? void 0 : _a
       }
       MermaidState.prototype.getCleanedName = function (s) {
         var _a;
