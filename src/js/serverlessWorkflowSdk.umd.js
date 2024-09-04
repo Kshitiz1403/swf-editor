@@ -17722,17 +17722,17 @@
               eventBasedSwitchState.eventConditions.forEach(function (eventCondition) {
                   var transitionEventCondition = eventCondition;
 
-                let transitionWithMetadata = transitionEventCondition.eventRef
+                let transitionWithMetadata = `<center>${transitionEventCondition.eventRef}</center>`
 
                 if (eventCondition.metadata){
-                    transitionWithMetadata += `<br><b><center>Metadata</center></b>${convertObjectToString(eventCondition.metadata, "", true)}`
+                    transitionWithMetadata += `<b><center>Metadata</center></b>${convertObjectToString(eventCondition.metadata, "", true)}`
                 }
-                  transitions.push.apply(transitions, _this.naturalTransition(stateName_2, _this.getCleanedName(transitionEventCondition.transition), transitionWithMetadata));
-                    
-                    var endEventCondition = eventCondition;
-                    if (endEventCondition.end) {
-                        transitions.push(_this.transitionDescription(stateName_2, '[*]'));
-                    }
+                if (transitionEventCondition.transition){
+                    transitions.push.apply(transitions, _this.naturalTransition(stateName_2, _this.getCleanedName(transitionEventCondition.transition), transitionWithMetadata));
+                }
+                if (transitionEventCondition.end){
+                    transitions.push.apply(transitions, _this.naturalTransition(stateName_2, '[*]', transitionWithMetadata));
+                }
               });
               transitions.push.apply(transitions, this.defaultConditionTransition(eventBasedSwitchState));
           }
