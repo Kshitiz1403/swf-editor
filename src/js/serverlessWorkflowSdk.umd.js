@@ -17639,7 +17639,7 @@
             );
         } else if (typeof obj[key]=="string"){
             let value = obj[key]
-            value = value.replaceAll(":", "#58;") // replace : with html code
+            value = value.replaceAll(";", "#59;").replaceAll(":", "#58;") // replace :, ; with html code
             result += `${disableKeyHighlight?"":"<b>"}${parentKey}${key}${disableKeyHighlight?"":"</b>"} = \"${value}\"<br/>`;
         } else{
             result += `${disableKeyHighlight?"":"<b>"}${parentKey}${key}${disableKeyHighlight?"":"</b>"} = ${obj[key]}<br/>`;
