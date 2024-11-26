@@ -17736,7 +17736,7 @@
                     transitionWithMetadata += `<b><center>Metadata</center></b>${convertObjectToString(eventCondition.metadata, "", true)}`
                 }
                 if (transitionEventCondition.transition){
-                    transitions.push.apply(transitions, _this.naturalTransition(stateName_2, _this.getCleanedName(transitionEventCondition.transition), transitionWithMetadata));
+                    transitions.push.apply(transitions, _this.naturalTransition(stateName_2, _this.getTransitionName(transitionEventCondition.transition), transitionWithMetadata));
                 }
                 if (transitionEventCondition.end){
                     transitions.push.apply(transitions, _this.naturalTransition(stateName_2, '[*]', transitionWithMetadata));
