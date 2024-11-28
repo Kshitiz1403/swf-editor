@@ -144,6 +144,63 @@ function mountEditor() {
   })
 }
 
+var editor
+
+document.addEventListener('DOMContentLoaded', () => {
+  const toggleButton = document.getElementById('theme-toggle');
+  setTheme(localStorage.getItem("theme") === "dark")
+
+  generateDiagram()
+
+  // Function to toggle the 'darkTheme' class on all elements that require it
+  function setTheme(isDarkMode) {
+    // Select all elements that should use dark theme and toggle the 'darkTheme' class
+    document.querySelectorAll('.theme').forEach(element => {
+        if (isDarkMode) {
+            element.classList.add('darkTheme');  // Apply dark theme
+        } else {
+            element.classList.remove('darkTheme');  // Remove dark theme
+        }
+    });
+
+    if (isDarkMode){
+      // Initialize Monaco editor
+      editor = monaco.editor.create(document.getElementById("sweditor"), {
+        model: model, // Assume 'model' is defined elsewhere
+        theme: "vs-dark" // Default to light theme
+      });
+      mermaid.mermaidAPI.initialize({ theme: 'dark' , startOnLoad:false});
+      localStorage.setItem("theme", "dark")
+      document.querySelector(".gutter").style.backgroundColor="rgb(50,50,50)"
+    }else{
+
+      // Initialize Monaco editor
+      editor = monaco.editor.create(document.getElementById("sweditor"), {
+        model: model, // Assume 'model' is defined elsewhere
+        theme: "vs-light" // Default to light theme
+      });
+      mermaid.mermaidAPI.initialize({ theme: 'default', startOnLoad:false });
+      localStorage.setItem("theme", "light")
+      document.querySelector(".gutter").style.backgroundColor="#eee"
+
+    }
+  }
+
+
+  function toggleTheme(){
+    const currentTheme = localStorage.getItem('theme');
+
+    const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+    localStorage.setItem('theme', nextTheme);
+
+    location.reload();
+  }
+
+  toggleButton.addEventListener('click', () => {
+   toggleTheme();
+  })
+});
 
 function formatJSON(){
   const model = monaco.editor.getModels()[0];

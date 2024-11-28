@@ -14,20 +14,22 @@
     <script src="https://unpkg.com/panzoom@9.4.0/dist/panzoom.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@9.4.3/dist/mermaid.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/split.js/1.6.0/split.min.js"></script>
-    <script>
-        mermaid.mermaidAPI.initialize({
-            startOnLoad: false
-        });
-    </script>
     <title>Serverless Workflow Online Editor</title>
 </head>
 
-<body>
+<style>
+    .darkTheme {
+        background-color: rgb(30, 30, 30);
+        color: white;
+    }
+</style>
+
+<body class="theme">
     <div style="padding-left: 20px; padding-right: 20px;">
-        <div class="split">
+        <div class="split theme">
             <div id="editor-col">
-                <div class="card">
-                    <div class="card-body" style="height: 99vh; padding-right: 0; padding-left: 0;">
+                <div class="card theme">
+                    <div class="card-body theme" style="height: 99vh; padding-right: 0; padding-left: 0;">
                         <div class="d-flex justify-content-end" style="position: absolute; z-index: 1; right: 0;">
                             <a href="#" class="btn btn-primary btn-sm" onclick="formatJSON();return false;">Format</a>
                         </div>
@@ -36,20 +38,21 @@
                 </div>
             </div>
             <div id="diagram-col">
-                <div class="card">
+                <div class="card theme">
                     <div class="card-body">
 
                         <div class="d-flex justify-content-between">
+                            <a href="#" class="btn btn-primary btn-sm" id="theme-toggle">Toggle theme</a>
                             <a href="#" class="btn btn-primary btn-sm"
                                 onclick="generateDiagram(this.value);return false;">Generate workflow diagram</a>
                             <div class="d-flex">
                                 <a href="#" class="btn btn-primary btn-sm"
                                     onclick="generateImageFromSVG(document.getElementById('quality').value);return false;">Generate
                                     image</a>
-                                <select id="quality" class="ml-2">
-                                    <option value="0.25">Low</option>
-                                    <option value="0.5">Medium</option>
-                                    <option value="1" selected>High</option>
+                                <select id="quality" class="ml-2 theme">
+                                    <option class="theme" value="0.25">Low</option>
+                                    <option class="theme" value="0.5">Medium</option>
+                                    <option class="theme" value="1" selected>High</option>
                                 </select>
                             </div>
                             <a href="#" class="btn btn-primary btn-sm"
@@ -96,13 +99,8 @@
             }], enableSchemaRequest: true
         });
 
-        const editor = monaco.editor.create(document.getElementById("sweditor"), {
-            model: model
-        });
 
         mountEditor();
-
-        generateDiagram();
 
     </script>
     <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
