@@ -158,8 +158,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.theme').forEach(element => {
         if (isDarkMode) {
             element.classList.add('darkTheme');  // Apply dark theme
+            element.classList.remove('lightTheme'); // Remove light theme
         } else {
             element.classList.remove('darkTheme');  // Remove dark theme
+            element.classList.add('lightTheme'); // Apply light theme
         }
     });
 
@@ -219,7 +221,6 @@ function saveToLocalStorage(){
 
 async function goFullScreen() {
   var elem = document.querySelector(".workflowdiagram");
-  elem.style.backgroundColor = "white";
   elem.style.overflow = "auto";
   const done = await elem.requestFullscreen();
 }
