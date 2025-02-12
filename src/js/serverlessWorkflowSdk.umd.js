@@ -17645,6 +17645,11 @@
             result += `${disableKeyHighlight?"":"<b>"}${parentKey}${key}${disableKeyHighlight?"":"</b>"} = ${obj[key]}<br/>`;
         }
     }
+    
+
+    // // Strip <br/> from the end of the string
+    // const lastBreakRemoved = result.replace(/<br\s*\/?>$/, "");
+
     return result;
 }
 
@@ -17888,13 +17893,14 @@
             const actionDataFilter = action.actionDataFilter
             if (!actionDataFilter) return null
 
-            if (actionDataFilter.useResults===false){
+            if (!actionDataFilter.useResults){
                 return null
             }
 
             const resultsJQ = actionDataFilter.results
+            const toStateData = actionDataFilter.toStateData
 
-            return `<center>${resultsJQ}</center>`
+            return `<center>Results #58; ${resultsJQ}<br/> ToStateData #58; ${toStateData} </center> `
         }
 
         if (state.actions.length == 1) {
