@@ -85,7 +85,7 @@
     <script src="js/editor.main.js"></script>
     <script src="js/sweditor.js"></script>
     <script>
-        var modelUri = monaco.Uri.parse("https://raw.githubusercontent.com/serverlessworkflow/specification/0.8.x/schema/workflow.json");
+        var modelUri = monaco.Uri.parse("https://raw.githubusercontent.com/serverlessworkflow/specification/0.9.x/schema/workflow.json");
 
         const lastSWFJson = localStorage.getItem(LOCAL_STORAGE_SWF_JSON);
 
@@ -98,7 +98,7 @@
         monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
             validate: true, allowComments: false,
             schemas: [{
-                uri: "https://raw.githubusercontent.com/serverlessworkflow/specification/0.8.x/schema/workflow.json",
+                uri: "https://raw.githubusercontent.com/serverlessworkflow/specification/0.9.x/schema/workflow.json",
                 fileMatch: [modelUri.toString()]
             }], enableSchemaRequest: true
         });
