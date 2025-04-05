@@ -17889,18 +17889,24 @@
             return customArguments
         }
 
-        const getActionDataFilter = (action) =>{
+        const getActionDataFilter = (action) => {
             const actionDataFilter = action.actionDataFilter
             if (!actionDataFilter) return null
-
-            if (!actionDataFilter.useResults){
+        
+            if (!actionDataFilter.useResults) {
                 return null
             }
-
-            const resultsJQ = actionDataFilter.results
-            const toStateData = actionDataFilter.toStateData
-
-            return `<center>Results #58; ${resultsJQ}<br/> ToStateData #58; ${toStateData} </center> `
+        
+            // Use simple character replacement that won't be double-encoded
+            const resultsJQ = actionDataFilter.results.replaceAll(":", "→").replaceAll(";", "⊕")
+            let toStateData = actionDataFilter.toStateData
+            
+            if (toStateData && typeof toStateData === "string") {
+                toStateData = toStateData.replaceAll(":", "→").replaceAll(";", "⊕")
+                return `<center>Results → ${resultsJQ}<br/> ToStateData → ${toStateData} </center> `
+            }
+        
+            return `<center>Results → ${resultsJQ}</center>`
         }
 
         if (state.actions.length == 1) {

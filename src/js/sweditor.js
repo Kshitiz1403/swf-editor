@@ -135,6 +135,13 @@ function generateDiagram() {
     mermaidDiv.innerHTML = svgCode;
   });
   panzoom(document.querySelector("#mermaid"))
+
+// Add this after mermaid renders the diagram
+document.querySelectorAll('#mermaid').forEach(diagram => {
+  diagram.innerHTML = diagram.innerHTML
+      .replaceAll("→", ":")
+      .replaceAll("⊕", ";");
+});
 }
 
 
