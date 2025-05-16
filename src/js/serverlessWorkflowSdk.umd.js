@@ -17925,6 +17925,9 @@
             return `<center>Results → ${resultsJQ}</center>`
         }
 
+        const stateMetadata = this.stateMetadataString(this.state);
+
+
         if (state.actions.length == 1) {
             const action = state.actions[0];
             const functionRef = action.functionRef;
@@ -17939,6 +17942,7 @@
             if (retryRef) descriptions.push(this.stateDescription(this.stateName(), "Retry Ref", retryRef));
             if (customArguments) descriptions.push(this.stateDescriptionWithFocus(this.stateName(), "Arguments", customArguments));
             if (actionDataFilter) descriptions.push(this.stateDescriptionWithFocus(this.stateName(), "Action Data Filter", actionDataFilter));
+            if (stateMetadata) descriptions.push(this.stateDescriptionWithFocus(this.stateName(), "Metadata", stateMetadata));
         }
         else if (state.actions.length>1){
             let subDescriptionsString = ""
@@ -17993,6 +17997,7 @@
 
                 if (actionDataFilter) subDescriptions.push(this.stateDescriptionWithFocus(actionName, "Action Data Filter", actionDataFilter));
 
+                if (stateMetadata) subDescriptions.push(this.stateDescriptionWithFocus(actionName, "Metadata", stateMetadata));
 
                 if (nextActionName) subDescriptions.push(this.transitionDescription(actionName, nextActionName, ""))
                 else subDescriptions.push(this.endStateTransition(actionName))
@@ -18006,8 +18011,7 @@
 
             if (subDescriptionsString) descriptions.push(subDescriptionsString)
         }
-        const stateMetadata = this.stateMetadataString(this.state);
-        if (stateMetadata) descriptions.push(this.stateDescriptionWithFocus(this.stateName(), "Metadata", stateMetadata));
+
           return descriptions.length > 0
               ? descriptions.reduce(function (p, c) {
                   return p + "\n" + c;
