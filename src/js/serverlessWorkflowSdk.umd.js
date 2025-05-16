@@ -17706,6 +17706,7 @@
           }
           return transitions;
       };
+
       MermaidState.prototype.dataConditionsTransitions = function () {
           var _this = this;
           var transitions = [];
@@ -17813,6 +17814,20 @@
           }
           return transitions;
       };
+
+      MermaidState.prototype.stateMetadata = (state) =>{
+        if (state.metadata){
+            return `<b><center>Metadata</center></b>${convertObjectToString(state.metadata, "", true)}`
+        }
+        return ""
+      }
+      MermaidState.prototype.stateMetadataString = (state) =>{
+        if (state.metadata){
+            return convertObjectToString(state.metadata, "", true)
+        }
+        return ""
+      }
+      
       MermaidState.prototype.definitionDetails = function () {
           switch (this.state.type) {
               case 'sleep':
@@ -17863,7 +17878,8 @@
               : undefined;
       };
       MermaidState.prototype.eventBasedSwitchStateDetails = function () {
-          return this.stateDescription(this.stateName(), "Condition type", "event-based");
+        const stateMetadata = this.stateMetadata(this.state)
+        return this.stateDescription(this.stateName(), "Condition type", "event-based") + stateMetadata;
       };
       MermaidState.prototype.dataBasedSwitchStateDetails = function () {
           return this.stateDescription(this.stateName(), "Condition type", "data-based");
@@ -17990,6 +18006,8 @@
 
             if (subDescriptionsString) descriptions.push(subDescriptionsString)
         }
+        const stateMetadata = this.stateMetadataString(this.state);
+        if (stateMetadata) descriptions.push(this.stateDescriptionWithFocus(this.stateName(), "Metadata", stateMetadata));
           return descriptions.length > 0
               ? descriptions.reduce(function (p, c) {
                   return p + "\n" + c;
