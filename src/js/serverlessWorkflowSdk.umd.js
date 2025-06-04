@@ -17625,11 +17625,21 @@
 
         if (Array.isArray(obj[key])) {
             obj[key].forEach((item, index) => {
-                result += convertObjectToString(
-                    item,
-                    `${parentKey}${key}[${index}].`,
-                    disableKeyHighlight
-                );
+                if (typeof item === "object" && item !== null) {
+                    // For objects in arrays, recursively process them
+                    result += convertObjectToString(
+                        item,
+                        `${parentKey}${key}[${index}].`,
+                        disableKeyHighlight
+                    );
+                } else if (typeof item === "string") {
+                    // For string values in arrays, escape special characters and format
+                    let value = item.replaceAll(";", "#59;").replaceAll(":", "#58;");
+                    result += `${disableKeyHighlight?"":"<b>"}${parentKey}${key}[${index}]${disableKeyHighlight?"":"</b>"} = \"${value}\"<br/>`;
+                } else {
+                    // For other primitive values in arrays
+                    result += `${disableKeyHighlight?"":"<b>"}${parentKey}${key}[${index}]${disableKeyHighlight?"":"</b>"} = ${item}<br/>`;
+                }
             });
         } else if (typeof obj[key] === "object") {
             result += convertObjectToString(
@@ -17951,7 +17961,7 @@
             const actions = state.actions
 
             const getActionName = (actionIndex) =>{
-                return this.stateName() + (actions[actionIndex].name || getFunctionRefName(actions[actionIndex].functionRef)) + actionIndex
+                return this.stateName() + (getFunctionRefName(actions[actionIndex].functionRef)) + actionIndex
             }
 
             const getNextActionName = (actionIndex) =>{
