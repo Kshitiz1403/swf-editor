@@ -17833,7 +17833,7 @@
       }
       MermaidState.prototype.stateMetadataString = (state) =>{
         if (state.metadata){
-            return convertObjectToString(state.metadata, "", true)
+            return `<center>${convertObjectToString(state.metadata, "", true)}</center>`
         }
         return ""
       }
