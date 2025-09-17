@@ -17941,18 +17941,21 @@
         if (state.actions.length == 1) {
             const action = state.actions[0];
             const functionRef = action.functionRef;
-            const retryRef = action.retryRef
-            const refName = getFunctionRefName(functionRef)
-            const customInvokeType = getCustomInvokeType(functionRef)
-            const customArguments = getCustomArguments(functionRef)
-            const actionDataFilter = getActionDataFilter(action)
 
-            descriptions.push(this.stateDescription(this.stateName(), "Ref Name", refName));
-            if (customInvokeType) descriptions.push(this.stateDescription(this.stateName(), "invoke", customInvokeType))
-            if (retryRef) descriptions.push(this.stateDescription(this.stateName(), "Retry Ref", retryRef));
-            if (customArguments) descriptions.push(this.stateDescriptionWithFocus(this.stateName(), "Arguments", customArguments));
-            if (actionDataFilter) descriptions.push(this.stateDescriptionWithFocus(this.stateName(), "Action Data Filter", actionDataFilter));
-            if (stateMetadata) descriptions.push(this.stateDescriptionWithFocus(this.stateName(), "Metadata", stateMetadata));
+            if (functionRef){
+                const retryRef = action.retryRef
+                const refName = getFunctionRefName(functionRef)
+                const customInvokeType = getCustomInvokeType(functionRef)
+                const customArguments = getCustomArguments(functionRef)
+                const actionDataFilter = getActionDataFilter(action)
+
+                descriptions.push(this.stateDescription(this.stateName(), "Ref Name", refName));
+                if (customInvokeType) descriptions.push(this.stateDescription(this.stateName(), "invoke", customInvokeType))
+                if (retryRef) descriptions.push(this.stateDescription(this.stateName(), "Retry Ref", retryRef));
+                if (customArguments) descriptions.push(this.stateDescriptionWithFocus(this.stateName(), "Arguments", customArguments));
+                if (actionDataFilter) descriptions.push(this.stateDescriptionWithFocus(this.stateName(), "Action Data Filter", actionDataFilter));
+                if (stateMetadata) descriptions.push(this.stateDescriptionWithFocus(this.stateName(), "Metadata", stateMetadata));
+            }
         }
         else if (state.actions.length>1){
             let subDescriptionsString = ""
