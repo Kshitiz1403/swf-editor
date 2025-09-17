@@ -129,6 +129,7 @@ function generateDiagram() {
   const mermaidSource = new MermaidDiagram(
     Specification.Workflow.fromSource(modelVal)
   ).sourceCode();
+  console.log(mermaidSource);
   const mermaidDiv = document.querySelector(".workflowdiagram");
 
   mermaid.mermaidAPI.render("mermaid", mermaidSource, (svgCode) => {
@@ -178,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
         model: model, // Assume 'model' is defined elsewhere
         theme: "vs-dark" // Default to light theme
       });
-      mermaid.mermaidAPI.initialize({ theme: 'dark' , startOnLoad:false});
+      mermaid.mermaidAPI.initialize({ theme: 'dark' , startOnLoad:false, maxTextSize: 90000});
       localStorage.setItem("theme", "dark")
       document.querySelector(".gutter").style.backgroundColor="rgb(50,50,50)"
     }else{
@@ -188,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
         model: model, // Assume 'model' is defined elsewhere
         theme: "vs-light" // Default to light theme
       });
-      mermaid.mermaidAPI.initialize({ theme: 'default', startOnLoad:false });
+      mermaid.mermaidAPI.initialize({ theme: 'default', startOnLoad:false, maxTextSize: 90000 });
       localStorage.setItem("theme", "light")
       document.querySelector(".gutter").style.backgroundColor="#eee"
 
