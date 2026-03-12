@@ -17906,7 +17906,7 @@
         }
 
         const getCustomInvokeType = (functionRef)=>{
-            const customInvokeType = functionRef.invoke && functionRef.invoke!="sync" ? functionRef.invoke : undefined
+            const customInvokeType = functionRef?.invoke && functionRef.invoke!="sync" ? functionRef.invoke : undefined
             return customInvokeType
         }
 
