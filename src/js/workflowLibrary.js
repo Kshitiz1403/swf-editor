@@ -685,8 +685,10 @@ var WorkflowLibrary = {
   },
 
   migrateLegacyWorkflow: function() {
-    var existingIndex = getProvider().getItem('swf_library_index');
-    if (existingIndex !== null) return { migrated: false };
+    // Only migrate when the library has no workflows yet. This covers both
+    // a brand-new install and a user upgrading from before the library existed.
+    var entries = _readIndex();
+    if (entries.length > 0) return { migrated: false };
 
     var legacy = getProvider().getItem('lastSWFJson');
     if (!legacy) return { migrated: false };

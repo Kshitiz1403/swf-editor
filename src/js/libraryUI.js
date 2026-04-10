@@ -13,6 +13,11 @@ var LibraryUI = (function() {
 
   function init(libInfo) {
     _applySettings();
+    // Seed the library with the default workflow if there's nothing there yet.
+    // This runs after migration so a returning user's content takes priority.
+    if (WorkflowLibrary.listWorkflows().length === 0) {
+      _seedDefaultWorkflow();
+    }
     renderList(WorkflowLibrary.listWorkflows());
     _bindSidebarEvents();
     _bindToolbarEvents();
@@ -21,6 +26,22 @@ var LibraryUI = (function() {
     updateStorageInfo();
     _syncActiveWorkflowName();
     _applyProviderBadge(libInfo);
+  }
+
+  // Creates one Customer Application Workflow entry in the library so a fresh
+  // install has something to look at rather than an empty sidebar.
+  function _seedDefaultWorkflow() {
+    var defaultJson;
+    try { defaultJson = JSON.stringify(customerApplication, null, 2); }
+    catch (_) { return; }
+    var name = (typeof customerApplication !== 'undefined' && customerApplication.name)
+      ? customerApplication.name
+      : 'Customer Application Workflow';
+    var result = WorkflowLibrary.createWorkflow(name, defaultJson);
+    if (result.ok) {
+      _syncActiveWorkflowName();
+      updateStorageInfo();
+    }
   }
 
   // Apply persisted settings at startup — restores the sidebar collapsed state
@@ -339,26 +360,28 @@ var LibraryUI = (function() {
   }
 
   function _doNewWorkflow() {
-    var emptyJson = JSON.stringify({
-      id: 'unnamed-workflow',
-      name: 'Unnamed Workflow',
-      version: '1.0',
-      specVersion: '0.8',
-      states: []
-    }, null, 2);
+    var defaultJson;
+    try { defaultJson = JSON.stringify(customerApplication, null, 2); }
+    catch (_) { defaultJson = '{}'; }
+    var name = (typeof customerApplication !== 'undefined' && customerApplication.name)
+      ? customerApplication.name
+      : 'Customer Application Workflow';
 
-    var result = WorkflowLibrary.createWorkflow('Unnamed Workflow', emptyJson);
+    var result = WorkflowLibrary.createWorkflow(name, defaultJson);
     if (!result.ok) {
       showToast('Could not create workflow: ' + result.error, 'error');
       return;
     }
 
-    try { monaco.editor.getModels()[0].setValue(emptyJson); } catch (_) {}
-    AutoSave.lastSavedContent = emptyJson;
+    try { monaco.editor.getModels()[0].setValue(defaultJson); } catch (_) {}
+    AutoSave.lastSavedContent = defaultJson;
     _syncActiveWorkflowName();
     _refreshList();
     updateStorageInfo();
     showAutosaveStatus('');
+    setTimeout(function() {
+      if (typeof generateDiagram === 'function') generateDiagram();
+    }, 80);
   }
 
   function _doDuplicate(id) {
