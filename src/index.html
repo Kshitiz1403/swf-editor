@@ -83,6 +83,17 @@
                 <span id="lib-storage-info" class="library-footer-text">0 workflows</span>
             </div>
 
+            <div class="sidebar-view-controls">
+                <button id="theme-toggle" class="sidebar-ctrl-btn" title="Toggle theme">
+                    <i class="fa fa-moon-o" id="theme-icon"></i>
+                    <span class="sidebar-ctrl-label">Theme</span>
+                </button>
+                <button class="sidebar-ctrl-btn" title="Full screen" onclick="goFullScreen();">
+                    <i class="fa fa-expand"></i>
+                    <span class="sidebar-ctrl-label">Full Screen</span>
+                </button>
+            </div>
+
         </div><!-- /library-sidebar -->
 
         <!-- Split panels: editor + diagram -->
@@ -98,17 +109,18 @@
                         <span id="autosave-status" class="autosave-status"></span>
                     </div>
                     <div class="toolbar-right">
-                        <button id="tb-save-btn"    class="btn btn-sm btn-success">Save</button>
-                        <button id="tb-save-as-btn" class="btn btn-sm btn-outline-primary">Save As&#8230;</button>
+                        <button id="tb-format-btn" class="btn btn-sm btn-outline-secondary" title="Format JSON">
+                            <i class="fa fa-magic"></i> Format
+                        </button>
+                        <button id="tb-generate-btn" class="btn btn-sm btn-outline-secondary" title="Generate Diagram (&#8984;&#8629;)">
+                            <i class="fa fa-sitemap"></i> Generate
+                        </button>
                     </div>
                 </div>
 
                 <!-- Monaco card -->
                 <div class="card theme">
                     <div class="card-body theme" style="padding-right: 0; padding-left: 0; position: relative;">
-                        <div class="d-flex justify-content-end" style="position: absolute; z-index: 1; right: 0; top: 0;">
-                            <a href="#" class="btn btn-primary btn-sm" onclick="formatJSON();return false;">Format</a>
-                        </div>
                         <div id="sweditor" style="width: 100%; height: 100%;"></div>
                     </div>
                 </div>
@@ -117,37 +129,8 @@
 
             <!-- Diagram Column -->
             <div id="diagram-col">
-                <div class="card theme">
-                    <div class="card-body">
-
-                        <div class="d-flex align-items-center" style="gap: 8px;">
-                            <a href="#" class="btn btn-primary btn-sm"
-                                onclick="generateDiagram();return false;">Generate diagram</a>
-                            <div class="d-flex align-items-center ml-auto">
-                                <a href="#" class="btn btn-primary btn-sm"
-                                    onclick="generateImageFromSVG(document.getElementById('quality').value);return false;">Generate image</a>
-                                <select id="quality" class="ml-2 theme">
-                                    <option class="theme" value="0.25">Low</option>
-                                    <option class="theme" value="0.5">Medium</option>
-                                    <option class="theme" value="1" selected>High</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="diagram-wrapper">
-                            <div class="diagram-controls">
-                                <button id="theme-toggle" class="diagram-ctrl-btn" title="Toggle theme">
-                                    <i class="fa fa-moon-o" id="theme-icon"></i>
-                                </button>
-                                <button class="diagram-ctrl-btn" title="Full screen" onclick="goFullScreen(); return false;">
-                                    <i class="fa fa-expand"></i>
-                                </button>
-                            </div>
-                            <div class="workflowdiagram theme" style="overflow: hidden; height: 94vh;">
-                                <br />
-                            </div>
-                        </div>
-                    </div>
+                <div class="workflowdiagram theme" style="overflow: hidden; height: 100%;">
+                    <br />
                 </div>
             </div><!-- /diagram-col -->
 
@@ -156,40 +139,6 @@
     </div><!-- /app-container -->
 
     <!-- ── Modals ────────────────────────────────────────────────── -->
-
-    <!-- Save As -->
-    <div id="modal-save-as" class="modal" tabindex="-1" role="dialog" aria-labelledby="modal-save-as-title" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content theme">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modal-save-as-title">Save Workflow As</h5>
-                    <button type="button" class="close modal-close-btn" data-modal="modal-save-as" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="save-as-name">Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="save-as-name"
-                            placeholder="e.g. Customer Onboarding Flow" maxlength="100" autocomplete="off" />
-                        <div class="invalid-feedback" id="save-as-name-error"></div>
-                    </div>
-                    <div class="form-group mb-0">
-                        <label for="save-as-description">Description <span class="text-muted">(optional)</span></label>
-                        <textarea class="form-control" id="save-as-description" rows="2" maxlength="300"
-                            placeholder="Short description of this workflow"></textarea>
-                        <small class="form-text text-muted">
-                            <span id="save-as-desc-count">0</span>/300
-                        </small>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary modal-close-btn" data-modal="modal-save-as">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="save-as-confirm-btn">Save</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Delete Confirmation -->
     <div id="modal-confirm-delete" class="modal" tabindex="-1" role="dialog" aria-labelledby="modal-delete-title" aria-hidden="true">

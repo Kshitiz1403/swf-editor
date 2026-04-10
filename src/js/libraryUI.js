@@ -115,7 +115,7 @@ var LibraryUI = (function() {
         '<button class="btn-icon lib-duplicate-btn" title="Duplicate workflow" data-id="' + entry.id + '">' +
           '<i class="fa fa-clone"></i><span>Duplicate</span>' +
         '</button>' +
-        '<button class="btn-icon lib-export-btn" title="Export as JSON" data-id="' + entry.id + '">' +
+        '<button class="btn-icon lib-export-btn" title="Export" data-id="' + entry.id + '">' +
           '<i class="fa fa-download"></i><span>Export</span>' +
         '</button>' +
         '<button class="btn-icon lib-delete-btn danger" title="Delete workflow" data-id="' + entry.id + '">' +
@@ -299,6 +299,10 @@ var LibraryUI = (function() {
     _syncActiveWorkflowName();
     _refreshList();
     showAutosaveStatus('saved');
+    // Auto-generate diagram after a brief tick so Monaco has processed setValue
+    setTimeout(function() {
+      if (typeof generateDiagram === 'function') generateDiagram();
+    }, 80);
   }
 
   function _doSave(id) {
@@ -343,11 +347,57 @@ var LibraryUI = (function() {
     }
   }
 
-  function _doExport(id) {
+  function _doExportJson(id) {
     var result = WorkflowLibrary.exportWorkflow(id);
     if (!result.ok) { showToast('Export failed: ' + result.error, 'error'); return; }
     _triggerDownload(result.json, result.filename, 'application/json');
     showToast('"' + result.filename + '" downloaded.', 'success', 2000);
+  }
+
+  function _doExportImage() {
+    var svg = document.querySelector('.workflowdiagram svg');
+    if (!svg) {
+      showToast('No diagram rendered yet. Load a workflow first.', 'warning', 3000);
+      return;
+    }
+    if (typeof generateImageFromSVG === 'function') generateImageFromSVG(1);
+  }
+
+  function _showExportMenu(id, triggerBtn) {
+    // Toggle off if already open
+    var existing = document.getElementById('export-dropdown');
+    if (existing) { existing.remove(); return; }
+
+    var menu = document.createElement('div');
+    menu.id = 'export-dropdown';
+    menu.className = 'export-dropdown';
+
+    function makeItem(iconClass, label, onClick) {
+      var btn = document.createElement('button');
+      btn.className = 'export-dropdown-item';
+      btn.innerHTML = '<i class="fa ' + iconClass + '"></i>' + label;
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        menu.remove();
+        onClick();
+      });
+      return btn;
+    }
+
+    menu.appendChild(makeItem('fa-file-code-o', 'Export JSON',  function() { _doExportJson(id); }));
+    menu.appendChild(makeItem('fa-picture-o',   'Export Image', function() { _doExportImage(); }));
+
+    // Position below the trigger button
+    var rect = triggerBtn.getBoundingClientRect();
+    menu.style.top  = (rect.bottom + 4) + 'px';
+    menu.style.left = rect.left + 'px';
+    document.body.appendChild(menu);
+
+    // Close on any outside click
+    function onOutside(e) {
+      if (!menu.contains(e.target)) { menu.remove(); document.removeEventListener('click', onOutside, true); }
+    }
+    setTimeout(function() { document.addEventListener('click', onOutside, true); }, 0);
   }
 
   function _triggerDownload(content, filename, mimeType) {
@@ -393,36 +443,19 @@ var LibraryUI = (function() {
 
   // ── Confirm handlers ──────────────────────────────────────────────────────
 
-  function _onSaveAsConfirm() {
-    var nameInput = document.getElementById('save-as-name');
-    var descInput = document.getElementById('save-as-description');
-    var nameError = document.getElementById('save-as-name-error');
-
-    var name = (nameInput ? nameInput.value : '').trim();
-    if (!name) {
-      if (nameInput) nameInput.classList.add('is-invalid');
-      if (nameError) nameError.textContent = 'Name is required.';
-      return;
-    }
-    if (nameInput) nameInput.classList.remove('is-invalid');
-
+  function _doSaveNew() {
     var content;
     try { content = monaco.editor.getModels()[0].getValue(); } catch (_) { content = '{}'; }
-
-    var desc = descInput ? descInput.value : '';
-    var result = WorkflowLibrary.createWorkflow(name, content, desc);
-
+    var parsed;
+    try { parsed = JSON.parse(content); } catch (_) { parsed = {}; }
+    var name = (parsed.name || parsed.id || 'My Workflow').trim();
+    var result = WorkflowLibrary.createWorkflow(name, content);
     if (result.ok) {
       AutoSave.lastSavedContent = content;
       _syncActiveWorkflowName();
       _refreshList();
       updateStorageInfo();
-      closeModal('modal-save-as');
-      if (nameInput) nameInput.value = '';
-      if (descInput) descInput.value = '';
-      var descCount = document.getElementById('save-as-desc-count');
-      if (descCount) descCount.textContent = '0';
-      showToast('Workflow "' + name + '" saved.', 'success', 2000);
+      showToast('"' + name + '" saved.', 'success', 2000);
     } else {
       showToast('Save failed: ' + result.error, 'error');
     }
@@ -523,7 +556,7 @@ var LibraryUI = (function() {
           } else if (btn.classList.contains('lib-duplicate-btn')) {
             _doDuplicate(id);
           } else if (btn.classList.contains('lib-export-btn')) {
-            _doExport(id);
+            _showExportMenu(id, btn);
           } else if (btn.classList.contains('lib-delete-btn')) {
             _openDeleteModal(id);
           }
@@ -565,32 +598,18 @@ var LibraryUI = (function() {
   // ── Toolbar event binding ─────────────────────────────────────────────────
 
   function _bindToolbarEvents() {
-    var saveBtn = document.getElementById('tb-save-btn');
-    if (saveBtn) {
-      saveBtn.addEventListener('click', function() {
-        var activeId = WorkflowLibrary.getActiveId();
-        if (activeId) { _doSave(activeId); }
-        else {
-          var saveAsName = document.getElementById('save-as-name');
-          if (saveAsName) saveAsName.value = '';
-          openModal('modal-save-as');
-        }
+    var formatBtn = document.getElementById('tb-format-btn');
+    if (formatBtn) {
+      formatBtn.addEventListener('click', function() {
+        if (typeof formatJSON === 'function') formatJSON();
       });
     }
 
-    var saveAsBtn = document.getElementById('tb-save-as-btn');
-    if (saveAsBtn) {
-      saveAsBtn.addEventListener('click', function() {
-        var saveAsName = document.getElementById('save-as-name');
-        var activeEntry = WorkflowLibrary.getIndexEntry(WorkflowLibrary.getActiveId());
-        if (saveAsName) saveAsName.value = activeEntry ? activeEntry.name + ' (copy)' : '';
-        openModal('modal-save-as');
+    var generateBtn = document.getElementById('tb-generate-btn');
+    if (generateBtn) {
+      generateBtn.addEventListener('click', function() {
+        if (typeof generateDiagram === 'function') generateDiagram();
       });
-    }
-
-    var newBtn = document.getElementById('tb-new-btn');
-    if (newBtn) {
-      newBtn.addEventListener('click', function() { _guardUnsaved(null, _doNewWorkflow); });
     }
   }
 
@@ -603,15 +622,6 @@ var LibraryUI = (function() {
 
     var backdrop = document.getElementById('modal-backdrop');
     if (backdrop) backdrop.addEventListener('click', _closeAllModals);
-
-    var saveAsConfirm = document.getElementById('save-as-confirm-btn');
-    if (saveAsConfirm) saveAsConfirm.addEventListener('click', _onSaveAsConfirm);
-
-    var saveAsDesc = document.getElementById('save-as-description');
-    var saveAsCount = document.getElementById('save-as-desc-count');
-    if (saveAsDesc && saveAsCount) {
-      saveAsDesc.addEventListener('input', function() { saveAsCount.textContent = saveAsDesc.value.length; });
-    }
 
     var deleteConfirm = document.getElementById('delete-confirm-btn');
     if (deleteConfirm) {
@@ -719,7 +729,7 @@ var LibraryUI = (function() {
     }
 
     // Enter key in name inputs submits the modal
-    ['save-as-name', 'rename-name'].forEach(function(inputId) {
+    ['rename-name'].forEach(function(inputId) {
       var el = document.getElementById(inputId);
       if (el) {
         el.addEventListener('keydown', function(e) {
@@ -742,18 +752,22 @@ var LibraryUI = (function() {
         if (openModalEl) { closeModal(openModalEl.id); return; }
       }
 
-      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 's') {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
         var activeId = WorkflowLibrary.getActiveId();
         if (activeId) { _doSave(activeId); }
-        else { openModal('modal-save-as'); }
-      }
-
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 's') {
-        e.preventDefault();
-        openModal('modal-save-as');
+        else { _doSaveNew(); }
       }
     });
+
+    // Monaco captures keyboard events before they reach `document`
+    if (typeof editor !== 'undefined' && editor && typeof monaco !== 'undefined') {
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, function() {
+        var activeId = WorkflowLibrary.getActiveId();
+        if (activeId) { _doSave(activeId); }
+        else { _doSaveNew(); }
+      });
+    }
   }
 
   // ── Public interface ──────────────────────────────────────────────────────
