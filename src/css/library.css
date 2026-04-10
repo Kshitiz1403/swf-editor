@@ -1,0 +1,643 @@
+/* =====================================================
+   library.css — Workflow Library UI Styles
+   ===================================================== */
+
+/* --- CSS Custom Properties (light defaults) -------- */
+:root {
+  --lib-bg:              #f8f9fa;
+  --lib-border:          #dee2e6;
+  --lib-active-bg:       #e8f0fe;
+  --lib-active-border:   #448cfb;
+  --lib-text:            #212529;
+  --lib-meta-text:       #6c757d;
+  --lib-hover-bg:        #f0f4ff;
+  --lib-btn-icon-color:  #495057;
+  --lib-width:           260px;
+  --lib-width-collapsed: 36px;
+}
+
+.darkTheme {
+  --lib-bg:              rgb(37, 37, 38);
+  --lib-border:          rgb(60, 60, 60);
+  --lib-active-bg:       rgb(28, 56, 120);
+  --lib-active-border:   #448cfb;
+  --lib-text:            #d4d4d4;
+  --lib-meta-text:       #9e9e9e;
+  --lib-hover-bg:        rgb(42, 45, 62);
+  --lib-btn-icon-color:  #cccccc;
+}
+
+/* --- Full-page layout ------------------------------ */
+
+body {
+  margin: 0;
+  overflow: hidden;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* --- Library Sidebar ------------------------------- */
+
+#library-sidebar {
+  width: var(--lib-width);
+  min-width: var(--lib-width);
+  max-width: var(--lib-width);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--lib-bg);
+  border-right: 1px solid var(--lib-border);
+  transition: width 0.2s ease, min-width 0.2s ease, max-width 0.2s ease;
+  overflow: hidden;
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+#library-sidebar.collapsed {
+  width: var(--lib-width-collapsed);
+  min-width: var(--lib-width-collapsed);
+  max-width: var(--lib-width-collapsed);
+}
+
+#library-sidebar.collapsed .library-title,
+#library-sidebar.collapsed .library-actions,
+#library-sidebar.collapsed .library-search,
+#library-sidebar.collapsed .library-filter-bar,
+#library-sidebar.collapsed #lib-workflow-list,
+#library-sidebar.collapsed .library-footer-text,
+#library-sidebar.collapsed .library-footer-autosave,
+#library-sidebar.collapsed .quota-bar-container {
+  display: none;
+}
+
+/* Split host — the editor+diagram flex area */
+.split-host {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* --- Sidebar Header -------------------------------- */
+
+.library-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid var(--lib-border);
+  flex-shrink: 0;
+}
+
+.library-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--lib-meta-text);
+  white-space: nowrap;
+}
+
+#sidebar-collapse-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--lib-btn-icon-color);
+  font-size: 14px;
+  padding: 2px 4px;
+  line-height: 1;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+#sidebar-collapse-btn:hover {
+  background-color: var(--lib-hover-bg);
+}
+
+/* --- Action Buttons -------------------------------- */
+
+.library-actions {
+  display: flex;
+  gap: 6px;
+  padding: 8px 10px 6px;
+  flex-shrink: 0;
+}
+
+.library-actions .btn {
+  flex: 1;
+  font-size: 11px;
+  padding: 3px 6px;
+}
+
+/* --- Search --------------------------------------- */
+
+.library-search {
+  display: flex;
+  align-items: center;
+  margin: 0 10px 6px;
+  border: 1px solid var(--lib-border);
+  border-radius: 4px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background-color: var(--lib-bg);
+}
+
+#lib-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 5px 8px;
+  font-size: 12px;
+  background-color: transparent;
+  color: var(--lib-text);
+  min-width: 0;
+}
+
+#lib-search-input::placeholder {
+  color: var(--lib-meta-text);
+}
+
+#lib-search-clear {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 7px;
+  color: var(--lib-meta-text);
+  font-size: 12px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+#lib-search-clear:hover { color: var(--lib-text); }
+
+/* --- Filter Bar ----------------------------------- */
+
+.library-filter-bar {
+  padding: 0 10px 6px;
+  flex-shrink: 0;
+}
+
+#lib-sort-select {
+  width: 100%;
+  font-size: 11px;
+  padding: 3px 6px;
+  border: 1px solid var(--lib-border);
+  border-radius: 4px;
+  background-color: var(--lib-bg);
+  color: var(--lib-text);
+  cursor: pointer;
+}
+
+/* --- Workflow List --------------------------------- */
+
+.library-workflow-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.library-workflow-list::-webkit-scrollbar { width: 4px; }
+.library-workflow-list::-webkit-scrollbar-thumb {
+  background-color: var(--lib-border);
+  border-radius: 2px;
+}
+
+/* --- Workflow List Item --------------------------- */
+
+.workflow-item {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 10px 6px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  border-bottom: 1px solid var(--lib-border);
+  transition: background-color 0.1s ease;
+}
+
+.workflow-item:hover {
+  background-color: var(--lib-hover-bg);
+}
+
+.workflow-item.active {
+  border-left-color: var(--lib-active-border);
+  background-color: var(--lib-active-bg);
+}
+
+.workflow-item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.workflow-item-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--lib-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.workflow-item-meta {
+  font-size: 10px;
+  color: var(--lib-meta-text);
+}
+
+.workflow-item-date {
+  font-size: 10px;
+  color: var(--lib-meta-text);
+}
+
+/* Action buttons — hidden until hover */
+.workflow-item-actions {
+  display: none;
+  gap: 2px;
+  margin-top: 5px;
+}
+
+.workflow-item:hover .workflow-item-actions {
+  display: flex;
+}
+
+.btn-icon {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 1px 5px;
+  font-size: 12px;
+  color: var(--lib-btn-icon-color);
+  line-height: 1.4;
+}
+
+.btn-icon:hover {
+  background-color: var(--lib-border);
+  border-color: var(--lib-border);
+}
+
+.btn-icon.danger:hover {
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+  color: #721c24;
+}
+
+/* --- Empty State ---------------------------------- */
+
+.library-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+  text-align: center;
+  color: var(--lib-meta-text);
+  font-size: 12px;
+  gap: 6px;
+}
+
+.library-empty-state-icon {
+  font-size: 28px;
+  opacity: 0.4;
+}
+
+/* --- Sidebar Footer ------------------------------- */
+
+.library-footer {
+  padding: 8px 10px;
+  border-top: 1px solid var(--lib-border);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.library-footer-text {
+  font-size: 10px;
+  color: var(--lib-meta-text);
+}
+
+.library-footer-autosave {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--lib-meta-text);
+  flex-wrap: wrap;
+}
+
+.library-footer-autosave select {
+  font-size: 11px;
+  padding: 1px 4px;
+  border: 1px solid var(--lib-border);
+  border-radius: 3px;
+  background-color: var(--lib-bg);
+  color: var(--lib-text);
+}
+
+/* --- Provider Badge ------------------------------- */
+
+.provider-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  display: inline-block;
+  margin-top: 2px;
+}
+
+.provider-badge.session {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffc107;
+}
+
+.provider-badge.memory {
+  background-color: #ffe5d0;
+  color: #7d4301;
+  border: 1px solid #fd7e14;
+}
+
+/* --- Storage Quota Bar ---------------------------- */
+
+.quota-bar-container {
+  height: 3px;
+  background-color: var(--lib-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.quota-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease, background-color 0.3s ease;
+  background-color: #28a745;
+  width: 0%;
+}
+
+.quota-bar-fill.warn   { background-color: #ffc107; }
+.quota-bar-fill.danger { background-color: #dc3545; }
+
+/* --- Editor Column Layout ------------------------- */
+
+#editor-col {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+#editor-col .card {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden;
+  margin-bottom: 0 !important;
+  border-radius: 0;
+  border: none;
+}
+
+#editor-col .card-body {
+  flex: 1 !important;
+  height: auto !important;
+  overflow: hidden;
+  position: relative;
+}
+
+/* --- Editor Toolbar ------------------------------- */
+
+#editor-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 10px;
+  border-bottom: 1px solid var(--lib-border);
+  background-color: var(--lib-bg);
+  flex-shrink: 0;
+  min-height: 36px;
+  gap: 8px;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.workflow-name-display {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--lib-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.autosave-status {
+  font-size: 10px;
+  white-space: nowrap;
+  transition: opacity 0.4s ease;
+}
+
+.autosave-status.status-dirty  { color: #856404; }
+.autosave-status.status-saving { color: var(--lib-meta-text); }
+.autosave-status.status-saved  { color: #155724; }
+.autosave-status.status-error  { color: #721c24; }
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.toolbar-right .btn {
+  font-size: 11px;
+  padding: 2px 8px;
+}
+
+/* --- Unsaved Changes Banner ------------------------ */
+
+#unsaved-banner {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  background-color: #fff3cd;
+  border-bottom: 1px solid #ffc107;
+  font-size: 12px;
+  color: #856404;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+#unsaved-banner.visible { display: flex; }
+
+#unsaved-banner .btn {
+  font-size: 11px;
+  padding: 2px 8px;
+}
+
+/* --- Quota Warning Banner -------------------------- */
+
+#quota-banner {
+  flex-shrink: 0;
+  border-radius: 0 !important;
+  margin-bottom: 0 !important;
+  font-size: 12px;
+}
+
+/* --- Toast Notifications -------------------------- */
+
+#toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 9999;
+  pointer-events: none;
+  max-width: 340px;
+}
+
+.toast {
+  pointer-events: auto;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  animation: toast-in 0.2s ease;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.toast.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.toast.info    { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+.toast.warning { background: #fff3cd; color: #856404; border: 1px solid #ffc107; }
+.toast.error   { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+.toast-dismiss {
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: inherit;
+  opacity: 0.6;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.toast-dismiss:hover { opacity: 1; }
+
+/* --- Plain-JS Modal Support (no Bootstrap JS) ----- */
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 1050;
+  overflow-x: hidden;
+  overflow-y: auto;
+  outline: 0;
+}
+
+.modal.show {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  z-index: 1040;
+}
+
+.modal-backdrop.show { display: block !important; }
+
+.modal .modal-content {
+  background-color: var(--lib-bg);
+  color: var(--lib-text);
+  border-color: var(--lib-border);
+}
+
+.modal .modal-header,
+.modal .modal-footer {
+  border-color: var(--lib-border);
+}
+
+.modal .form-control {
+  background-color: var(--lib-bg);
+  color: var(--lib-text);
+  border-color: var(--lib-border);
+}
+
+.modal .form-control:focus {
+  background-color: var(--lib-bg);
+  color: var(--lib-text);
+}
+
+/* --- Import Drop Zone ----------------------------- */
+
+.import-drop-zone {
+  border: 2px dashed var(--lib-border);
+  border-radius: 6px;
+  padding: 18px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--lib-meta-text);
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+  cursor: default;
+}
+
+.import-drop-zone.drag-over {
+  border-color: #448cfb;
+  background-color: var(--lib-active-bg);
+}
+
+/* --- Responsive: narrow screens ------------------- */
+
+@media (max-width: 768px) {
+  #library-sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 100vh;
+    transform: translateX(0);
+    transition: transform 0.25s ease;
+    z-index: 100;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+  }
+
+  #library-sidebar.collapsed {
+    transform: translateX(calc(-1 * var(--lib-width) + var(--lib-width-collapsed)));
+  }
+
+  .split-host {
+    flex-direction: column;
+  }
+}
