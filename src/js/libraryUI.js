@@ -2,11 +2,14 @@
 
 var LibraryUI = (function() {
 
-  // ── Private state ────────────────────────────────────────────────────────
+  // Private state — the two pieces of cross-function state the module needs:
+  // which workflow is pending deletion, and a callback to run after the user
+  // resolves an unsaved-changes prompt.
   var _pendingDeleteId = null;
   var _pendingLoadCb   = null;
 
-  // ── Init ─────────────────────────────────────────────────────────────────
+  // Module entry point — wires up every subsystem in one call. Invoked once
+  // from DOMContentLoaded after WorkflowLibrary has been initialised.
 
   function init(libInfo) {
     _applySettings();
@@ -20,7 +23,8 @@ var LibraryUI = (function() {
     _applyProviderBadge(libInfo);
   }
 
-  // ── Settings application ─────────────────────────────────────────────────
+  // Apply persisted settings at startup — restores the sidebar collapsed state
+  // and the active sort selection so the UI looks the same as when the user left.
 
   function _applySettings() {
     var settings = Settings.load();
@@ -36,7 +40,9 @@ var LibraryUI = (function() {
     if (sortSelect) sortSelect.value = settings.sidebar.sortBy || 'modifiedAt-desc';
   }
 
-  // ── Provider badge ────────────────────────────────────────────────────────
+  // Storage warning badge — if the app fell back to sessionStorage or
+  // in-memory storage, show a persistent notice in the sidebar footer so the
+  // user knows their work won't survive a page reload.
 
   function _applyProviderBadge(libInfo) {
     if (!libInfo || libInfo.provider === 'localStorage') {
@@ -63,7 +69,8 @@ var LibraryUI = (function() {
     }
   }
 
-  // ── List rendering ────────────────────────────────────────────────────────
+  // List rendering — rebuilds the sidebar workflow list from scratch given an
+  // array of index entries. A private helper builds each card's HTML.
 
   function _refreshList(query) {
     var entries = query
@@ -126,7 +133,8 @@ var LibraryUI = (function() {
     return li;
   }
 
-  // ── Active workflow name ───────────────────────────────────────────────────
+  // Toolbar name sync — keeps the workflow title in the editor toolbar in
+  // step with whatever is currently active in the library.
 
   function _syncActiveWorkflowName() {
     var id = WorkflowLibrary.getActiveId();
@@ -137,7 +145,8 @@ var LibraryUI = (function() {
     nameEl.textContent = entry ? entry.name : 'Unsaved workflow';
   }
 
-  // ── Modal open/close ─────────────────────────────────────────────────────
+  // Modal open/close — shows and hides the custom dialogs by toggling a CSS
+  // class. Also manages the shared backdrop and auto-focuses the first input.
 
   function openModal(id) {
     var modal = document.getElementById(id);
@@ -167,7 +176,8 @@ var LibraryUI = (function() {
     document.querySelectorAll('.modal.show').forEach(function(m) { closeModal(m.id); });
   }
 
-  // ── Toast ────────────────────────────────────────────────────────────────
+  // Toast notifications — brief pop-up messages at the bottom-right corner.
+  // Pass duration 0 to keep a toast open until the user dismisses it manually.
 
   function showToast(message, type, duration) {
     type = type || 'info';
@@ -196,7 +206,9 @@ var LibraryUI = (function() {
     setTimeout(function() { if (toast.parentNode) toast.remove(); }, 250);
   }
 
-  // ── Auto-save status ──────────────────────────────────────────────────────
+  // Autosave status indicator — updates the small text next to the workflow
+  // name in the toolbar to reflect the current save state (unsaved, saving,
+  // saved, or error). The "Saved" message fades out after a few seconds.
 
   function showAutosaveStatus(state, detail) {
     var el = document.getElementById('autosave-status');
@@ -228,7 +240,8 @@ var LibraryUI = (function() {
     }
   }
 
-  // ── Storage info ──────────────────────────────────────────────────────────
+  // Storage info footer — counts workflows, calculates total bytes in use,
+  // and updates both the footer label and the quota progress bar.
 
   function updateStorageInfo() {
     var usage = WorkflowLibrary.getStorageUsage();
@@ -254,7 +267,9 @@ var LibraryUI = (function() {
     }
   }
 
-  // ── Unsaved changes guard ─────────────────────────────────────────────────
+  // Unsaved-changes guard — before loading a different workflow, checks whether
+  // the editor content differs from the last saved snapshot. If it does, shows
+  // the banner so the user can save, discard, or cancel.
 
   function _guardUnsaved(targetId, callback) {
     var settings = Settings.load();
@@ -274,7 +289,8 @@ var LibraryUI = (function() {
     if (banner) banner.classList.add('visible');
   }
 
-  // ── Actions ───────────────────────────────────────────────────────────────
+  // Action handlers — the functions that actually do things: load a workflow
+  // into the editor, save it, create a blank one, duplicate, and export.
 
   function _doLoad(id) {
     var result = WorkflowLibrary.loadWorkflow(id);
@@ -410,7 +426,8 @@ var LibraryUI = (function() {
     setTimeout(function() { URL.revokeObjectURL(url); a.remove(); }, 1000);
   }
 
-  // ── Modal helpers ─────────────────────────────────────────────────────────
+  // Modal data setup — populates the delete/rename/import modals with the
+  // right values before opening them, and resets the import modal between uses.
 
   function _openDeleteModal(id) {
     var entry = WorkflowLibrary.getIndexEntry(id);
@@ -441,7 +458,8 @@ var LibraryUI = (function() {
     if (errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
   }
 
-  // ── Confirm handlers ──────────────────────────────────────────────────────
+  // Modal confirm handlers — the logic that runs when the user clicks the
+  // primary action in a dialog: saving a new workflow, renaming, or importing.
 
   function _doSaveNew() {
     var content;
@@ -515,7 +533,9 @@ var LibraryUI = (function() {
     }
   }
 
-  // ── Sidebar event binding ─────────────────────────────────────────────────
+  // Sidebar event wiring — attaches listeners for the collapse toggle, New and
+  // Import buttons, the workflow list (click-to-load and action buttons),
+  // search input, and sort dropdown.
 
   function _bindSidebarEvents() {
     var collapseBtn = document.getElementById('sidebar-collapse-btn');
@@ -595,7 +615,8 @@ var LibraryUI = (function() {
 
   }
 
-  // ── Toolbar event binding ─────────────────────────────────────────────────
+  // Toolbar event wiring — connects the Format and Generate Diagram buttons
+  // above the Monaco editor to their respective functions in sweditor.js.
 
   function _bindToolbarEvents() {
     var formatBtn = document.getElementById('tb-format-btn');
@@ -613,7 +634,9 @@ var LibraryUI = (function() {
     }
   }
 
-  // ── Modal event binding ───────────────────────────────────────────────────
+  // Modal event wiring — attaches confirm/cancel/close listeners for every
+  // dialog, the file drag-and-drop zone, the unsaved-changes banner buttons,
+  // the quota link, and Enter-to-submit on name inputs.
 
   function _bindModalEvents() {
     document.querySelectorAll('.modal-close-btn').forEach(function(btn) {
@@ -743,7 +766,10 @@ var LibraryUI = (function() {
     });
   }
 
-  // ── Keyboard shortcuts ────────────────────────────────────────────────────
+  // Keyboard shortcuts — Escape closes any open modal; Cmd/Ctrl+S saves the
+  // active workflow (or promotes it to a named one if it hasn't been saved yet).
+  // We register the save shortcut via Monaco's addCommand API too, because Monaco
+  // consumes keyboard events before they reach the document-level listener.
 
   function _bindKeyboardShortcuts() {
     document.addEventListener('keydown', function(e) {
@@ -770,7 +796,8 @@ var LibraryUI = (function() {
     }
   }
 
-  // ── Public interface ──────────────────────────────────────────────────────
+  // Public interface — the handful of functions other scripts can call: init,
+  // renderList, showToast, showAutosaveStatus, and updateStorageInfo.
 
   return {
     init: init,

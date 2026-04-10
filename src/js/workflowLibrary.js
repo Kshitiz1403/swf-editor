@@ -1,6 +1,7 @@
 'use strict';
 
-// ── 1. Storage Providers ────────────────────────────────────────────────────
+// Storage providers — we try localStorage first, fall back to sessionStorage,
+// and finally to a plain in-memory store so the app runs even in restricted environments.
 
 var LocalStorageProvider = {
   name: 'localStorage',
@@ -103,7 +104,9 @@ function getProvider() {
   return _provider;
 }
 
-// ── 2. Utilities ────────────────────────────────────────────────────────────
+// Small utility functions used throughout the library: UUID generation, CRC32
+// checksums for corruption detection, human-readable relative timestamps,
+// HTML escaping, and a simple deep-merge for settings objects.
 
 function generateUUID() {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -158,7 +161,9 @@ function deepMerge(target, source) {
   return result;
 }
 
-// ── 3. Index Helpers ────────────────────────────────────────────────────────
+// The index is a lightweight JSON array (swf_library_index) that lists every
+// workflow's metadata without loading the actual content. These helpers read,
+// write, patch, and remove entries from it.
 
 function _readIndex() {
   try {
@@ -190,7 +195,9 @@ function _removeFromIndex(id) {
   _writeIndex(entries);
 }
 
-// ── 4. Record Helpers ───────────────────────────────────────────────────────
+// Each workflow's full content lives in its own key (swf_wf_{id}), so loading
+// one workflow doesn't pull the entire library into memory. These helpers
+// read, write, and build those records along with their index entries.
 
 function _readRecord(id) {
   try {
@@ -251,7 +258,9 @@ function _buildRecordAndEntry(id, content, name, description, tags, createdAt) {
   return { record: record, indexEntry: indexEntry };
 }
 
-// ── 5. Settings ─────────────────────────────────────────────────────────────
+// User preferences (sidebar state, sort order, etc.) persisted to swf_settings.
+// Defaults are deep-merged at read time so adding a new setting never breaks
+// existing stored data.
 
 var Settings = {
   _defaults: {
@@ -285,7 +294,9 @@ var Settings = {
   },
 };
 
-// ── 6. Schema Migration ─────────────────────────────────────────────────────
+// One-time migration: on the first run of the new library, we pick up whatever
+// was stored in the old lastSWFJson key and bring it into the library as a
+// proper named workflow.
 
 function migrateIfNeeded() {
   var stored = parseInt(getProvider().getItem('swf_schema_version') || '0', 10);
@@ -294,7 +305,9 @@ function migrateIfNeeded() {
   try { getProvider().setItem('swf_schema_version', '1'); } catch (_) {}
 }
 
-// ── 7. WorkflowLibrary Public API ───────────────────────────────────────────
+// WorkflowLibrary is the main object the rest of the app talks to. It exposes
+// create, read, update, delete, search, export, and import operations, plus
+// active-workflow tracking and library-wide utilities like repair and migration.
 
 var WorkflowLibrary = {
 
@@ -315,7 +328,8 @@ var WorkflowLibrary = {
     return _provider ? _provider.name : 'unknown';
   },
 
-  // --- Index ---
+  // Index access — read and sort the lightweight metadata list without
+  // touching individual workflow content records.
 
   listWorkflows: function(sortBy) {
     var sort = sortBy || Settings.get('sidebar.sortBy') || 'modifiedAt-desc';
@@ -336,7 +350,9 @@ var WorkflowLibrary = {
     return _readIndex().find(function(e) { return e.id === id; }) || null;
   },
 
-  // --- CRUD ---
+  // CRUD operations — create, save, load, rename, duplicate, and delete
+  // individual workflows. Each method validates its inputs and returns a
+  // result object with an ok flag so callers can react to failures.
 
   createWorkflow: function(name, jsonContent, description, tags) {
     if (!name || name.trim().length === 0 || name.length > 100) {
@@ -443,7 +459,8 @@ var WorkflowLibrary = {
     return { ok: true };
   },
 
-  // --- Search ---
+  // Search and filter — returns subsets of the index without loading any
+  // workflow content. Search matches name, description, and tags.
 
   searchWorkflows: function(query) {
     var q = (query || '').toLowerCase().trim();
@@ -477,7 +494,8 @@ var WorkflowLibrary = {
     return entries;
   },
 
-  // --- Active ID ---
+  // Active workflow tracking — remembers which workflow is currently open in
+  // the editor so autosave knows where to persist changes.
 
   setActiveId: function(id) {
     if (id === null || id === undefined) {
@@ -491,7 +509,9 @@ var WorkflowLibrary = {
     return getProvider().getItem('swf_active_id');
   },
 
-  // --- Export / Import ---
+  // Export and import — handles single-workflow files and full library bundles.
+  // Export wraps the raw record in a versioned bundle so imports can round-trip
+  // cleanly. Import accepts raw SWF JSON, YAML, or a bundle file.
 
   exportWorkflow: function(id) {
     var recResult = _readRecord(id);
@@ -587,7 +607,8 @@ var WorkflowLibrary = {
     return { ok: true, imported: imported, skipped: skipped };
   },
 
-  // --- Utility ---
+  // Utility methods — storage usage reporting, library repair (re-syncs the
+  // index with actual stored records), and migration from older data formats.
 
   getStorageUsage: function() {
     var keys = getProvider().keys();
@@ -676,7 +697,9 @@ var WorkflowLibrary = {
   },
 };
 
-// ── 8. AutoSave ─────────────────────────────────────────────────────────────
+// AutoSave watches the editor for changes and saves the active workflow after
+// a short quiet period (800 ms). It debounces writes so rapid typing only
+// triggers one save, and it updates the UI status indicator throughout.
 
 var AutoSave = {
   _debounceTimer: null,
@@ -724,7 +747,8 @@ var AutoSave = {
   },
 };
 
-// ── 9. Expose Globals ─────────────────────────────────────────────────────────
+// Attach the library objects to window so the separately-loaded UI scripts
+// (libraryUI.js, sweditor.js) can reach them without a module bundler.
 
 window.WorkflowLibrary = WorkflowLibrary;
 window.AutoSave        = AutoSave;

@@ -1,8 +1,8 @@
-/* =====================================================
-   library.css — Workflow Library UI Styles
-   ===================================================== */
+/* Styles for the workflow library sidebar, workflow cards, modals, toasts,
+   and the editor toolbar. Companion to workflowLibrary.js and libraryUI.js. */
 
-/* --- CSS Custom Properties (light defaults) -------- */
+/* CSS custom properties that define the colour palette and key dimensions for
+   the sidebar. Dark-theme overrides are applied immediately below via .darkTheme. */
 :root {
   --lib-bg:              #f8f9fa;
   --lib-border:          #dee2e6;
@@ -27,7 +27,8 @@
   --lib-btn-icon-color:  #cccccc;
 }
 
-/* --- Full-page layout ------------------------------ */
+/* Root layout — body and app-container fill the entire viewport with no
+   scroll so each panel can manage its own overflow independently. */
 
 body {
   margin: 0;
@@ -42,7 +43,8 @@ body {
   overflow: hidden;
 }
 
-/* --- Library Sidebar ------------------------------- */
+/* Library sidebar — fixed-width column on the left. Smoothly animates to a
+   narrow collapsed strip when the user clicks the toggle. */
 
 #library-sidebar {
   width: var(--lib-width);
@@ -86,7 +88,7 @@ body {
   min-width: 0;
 }
 
-/* --- Sidebar Header -------------------------------- */
+/* Sidebar header — the "Workflows" label and the collapse/expand toggle button. */
 
 .library-header {
   display: flex;
@@ -122,7 +124,8 @@ body {
   background-color: var(--lib-hover-bg);
 }
 
-/* --- Action Buttons -------------------------------- */
+/* Sidebar action buttons — "New" and "Import" sit side-by-side just below
+   the sidebar header. */
 
 .library-actions {
   display: flex;
@@ -137,7 +140,8 @@ body {
   padding: 3px 6px;
 }
 
-/* --- Search --------------------------------------- */
+/* Search bar — a small text input with an inline clear button for filtering
+   the workflow list in real time. */
 
 .library-search {
   display: flex;
@@ -178,7 +182,8 @@ body {
 
 #lib-search-clear:hover { color: var(--lib-text); }
 
-/* --- Filter Bar ----------------------------------- */
+/* Sort dropdown — lets the user choose how the workflow list is ordered
+   (recently modified, by name, by creation date, etc.). */
 
 .library-filter-bar {
   padding: 0 10px 6px;
@@ -196,7 +201,8 @@ body {
   cursor: pointer;
 }
 
-/* --- Workflow List --------------------------------- */
+/* Workflow list — the scrollable <ul> that holds all workflow cards.
+   Uses a thin custom scrollbar to avoid layout interference. */
 
 .library-workflow-list {
   list-style: none;
@@ -213,7 +219,9 @@ body {
   border-radius: 2px;
 }
 
-/* --- Workflow List Item --------------------------- */
+/* Workflow card — each list item shows the name, optional description, and
+   metadata (state count, last modified). A coloured left border marks the
+   active workflow, and action buttons appear on hover. */
 
 .workflow-item {
   display: flex;
@@ -361,7 +369,8 @@ body {
   color: #f1aeb5;
 }
 
-/* --- Empty State ---------------------------------- */
+/* Empty state — centred placeholder displayed when no workflows exist or
+   when a search returns no results. */
 
 .library-empty-state {
   display: flex;
@@ -380,7 +389,8 @@ body {
   opacity: 0.4;
 }
 
-/* --- Sidebar Footer ------------------------------- */
+/* Sidebar footer — shows the workflow count, storage used, and the quota
+   progress bar. Hidden when the sidebar is collapsed. */
 
 .library-footer {
   padding: 8px 10px;
@@ -397,7 +407,9 @@ body {
 }
 
 
-/* --- Sidebar View Controls (theme + fullscreen) --- */
+/* Theme and full-screen controls — a row of icon+label buttons at the very
+   bottom of the sidebar. When the sidebar is collapsed they stack vertically
+   and show icons only. */
 
 .sidebar-view-controls {
   display: flex;
@@ -453,7 +465,8 @@ body {
   border-radius: 6px;
 }
 
-/* --- Provider Badge ------------------------------- */
+/* Provider badge — a small warning label in the sidebar footer shown when the
+   app fell back to sessionStorage or in-memory storage. */
 
 .provider-badge {
   font-size: 10px;
@@ -475,7 +488,8 @@ body {
   border: 1px solid #fd7e14;
 }
 
-/* --- Storage Quota Bar ---------------------------- */
+/* Storage quota bar — a thin progress bar that fills as localStorage usage
+   grows. Turns yellow at 80 % full and red at 95 %. */
 
 .quota-bar-container {
   height: 3px;
@@ -495,7 +509,8 @@ body {
 .quota-bar-fill.warn   { background-color: #ffc107; }
 .quota-bar-fill.danger { background-color: #dc3545; }
 
-/* --- Editor Column Layout ------------------------- */
+/* Editor column — the left panel of the split view. The Monaco editor card
+   grows to fill whatever height remains after the toolbar. */
 
 #editor-col {
   display: flex;
@@ -521,7 +536,8 @@ body {
   position: relative;
 }
 
-/* --- Editor Toolbar ------------------------------- */
+/* Editor toolbar — the slim bar above Monaco showing the active workflow name,
+   autosave status, and the Format / Generate Diagram buttons. */
 
 #editor-toolbar {
   display: flex;
@@ -576,7 +592,8 @@ body {
   padding: 2px 8px;
 }
 
-/* --- Unsaved Changes Banner ------------------------ */
+/* Unsaved changes banner — a yellow strip that appears above the editor when
+   the user tries to navigate away from a workflow with unsaved edits. */
 
 #unsaved-banner {
   display: none;
@@ -598,7 +615,8 @@ body {
   padding: 2px 8px;
 }
 
-/* --- Quota Warning Banner -------------------------- */
+/* Quota warning banner — a Bootstrap alert repurposed as a full-width strip.
+   Resets Bootstrap's default margin so it sits flush in the flex column. */
 
 #quota-banner {
   flex-shrink: 0;
@@ -607,7 +625,8 @@ body {
   font-size: 12px;
 }
 
-/* --- Toast Notifications -------------------------- */
+/* Toast notifications — a stack of brief pop-up messages fixed to the
+   bottom-right corner. Each toast slides in and fades out automatically. */
 
 #toast-container {
   position: fixed;
@@ -658,7 +677,9 @@ body {
 
 .toast-dismiss:hover { opacity: 1; }
 
-/* --- Plain-JS Modal Support (no Bootstrap JS) ----- */
+/* Plain-JS modal support — Bootstrap 4 modals normally rely on Bootstrap JS
+   to show/hide. Since we don't load that, we drive the show/hide state
+   ourselves with these rules. */
 
 .modal {
   display: none;
@@ -786,7 +807,8 @@ body {
 
 .modal .close:hover { opacity: 0.9; }
 
-/* --- Import Drop Zone ----------------------------- */
+/* Import drop zone — the dashed-border drag-and-drop target inside the import
+   modal. Highlights with a blue border when a file is dragged over it. */
 
 .import-drop-zone {
   border: 2px dashed var(--lib-border);
@@ -817,7 +839,8 @@ body {
   resize: vertical;
 }
 
-/* --- Editor format icon button -------------------- */
+/* Frosted-glass icon button — a small translucent button positioned absolutely
+   inside a panel (editor or diagram area). Used for the format action. */
 
 .editor-ctrl-btn {
   position: absolute;
@@ -859,7 +882,8 @@ body {
   color: #ffffff;
 }
 
-/* --- Export dropdown menu ------------------------- */
+/* Export dropdown — a small floating menu that appears below the Export button
+   in a workflow card, offering JSON and Image export options. */
 
 .export-dropdown {
   position: fixed;
@@ -907,7 +931,9 @@ body {
   text-align: center;
 }
 
-/* --- Diagram overlay controls (theme + fullscreen) - */
+/* Diagram overlay controls — frosted-glass icon buttons for the top-right
+   corner of the diagram panel. Kept here in case they're needed again;
+   the theme and fullscreen controls currently live in the sidebar instead. */
 
 .diagram-wrapper {
   position: relative;
@@ -959,7 +985,8 @@ body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
-/* --- Responsive: narrow screens ------------------- */
+/* Responsive layout — on narrow screens the sidebar becomes a fixed overlay
+   so it doesn't steal horizontal space from the editor and diagram panels. */
 
 @media (max-width: 768px) {
   #library-sidebar {
