@@ -1,0 +1,1009 @@
+/* Styles for the workflow library sidebar, workflow cards, modals, toasts,
+   and the editor toolbar. Companion to workflowLibrary.js and libraryUI.js. */
+
+/* CSS custom properties that define the colour palette and key dimensions for
+   the sidebar. Dark-theme overrides are applied immediately below via .darkTheme. */
+:root {
+  --lib-bg:              #f8f9fa;
+  --lib-border:          #dee2e6;
+  --lib-active-bg:       #e8f0fe;
+  --lib-active-border:   #448cfb;
+  --lib-text:            #212529;
+  --lib-meta-text:       #6c757d;
+  --lib-hover-bg:        #f0f4ff;
+  --lib-btn-icon-color:  #495057;
+  --lib-width:           260px;
+  --lib-width-collapsed: 36px;
+}
+
+.darkTheme {
+  --lib-bg:              rgb(37, 37, 38);
+  --lib-border:          rgb(60, 60, 60);
+  --lib-active-bg:       rgb(28, 56, 120);
+  --lib-active-border:   #448cfb;
+  --lib-text:            #d4d4d4;
+  --lib-meta-text:       #9e9e9e;
+  --lib-hover-bg:        rgb(42, 45, 62);
+  --lib-btn-icon-color:  #cccccc;
+}
+
+/* Root layout — body and app-container fill the entire viewport with no
+   scroll so each panel can manage its own overflow independently. */
+
+body {
+  margin: 0;
+  overflow: hidden;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* Library sidebar — fixed-width column on the left. Smoothly animates to a
+   narrow collapsed strip when the user clicks the toggle. */
+
+#library-sidebar {
+  width: var(--lib-width);
+  min-width: var(--lib-width);
+  max-width: var(--lib-width);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--lib-bg);
+  border-right: 1px solid var(--lib-border);
+  transition: width 0.2s ease, min-width 0.2s ease, max-width 0.2s ease;
+  overflow: hidden;
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+#library-sidebar.collapsed {
+  width: var(--lib-width-collapsed);
+  min-width: var(--lib-width-collapsed);
+  max-width: var(--lib-width-collapsed);
+}
+
+#library-sidebar.collapsed .library-title,
+#library-sidebar.collapsed .library-actions,
+#library-sidebar.collapsed .library-search,
+#library-sidebar.collapsed .library-filter-bar,
+#library-sidebar.collapsed #lib-workflow-list,
+#library-sidebar.collapsed .library-footer-text,
+#library-sidebar.collapsed .quota-bar-container,
+#library-sidebar.collapsed .sidebar-ctrl-label {
+  display: none;
+}
+
+/* Split host — the editor+diagram flex area */
+.split-host {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* Sidebar header — the "Workflows" label and the collapse/expand toggle button. */
+
+.library-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid var(--lib-border);
+  flex-shrink: 0;
+}
+
+.library-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--lib-meta-text);
+  white-space: nowrap;
+}
+
+#sidebar-collapse-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--lib-btn-icon-color);
+  font-size: 14px;
+  padding: 2px 4px;
+  line-height: 1;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+#sidebar-collapse-btn:hover {
+  background-color: var(--lib-hover-bg);
+}
+
+/* Sidebar action buttons — "New" and "Import" sit side-by-side just below
+   the sidebar header. */
+
+.library-actions {
+  display: flex;
+  gap: 6px;
+  padding: 8px 10px 6px;
+  flex-shrink: 0;
+}
+
+.library-actions .btn {
+  flex: 1;
+  font-size: 11px;
+  padding: 3px 6px;
+}
+
+/* Search bar — a small text input with an inline clear button for filtering
+   the workflow list in real time. */
+
+.library-search {
+  display: flex;
+  align-items: center;
+  margin: 0 10px 6px;
+  border: 1px solid var(--lib-border);
+  border-radius: 4px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background-color: var(--lib-bg);
+}
+
+#lib-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 5px 8px;
+  font-size: 12px;
+  background-color: transparent;
+  color: var(--lib-text);
+  min-width: 0;
+}
+
+#lib-search-input::placeholder {
+  color: var(--lib-meta-text);
+}
+
+#lib-search-clear {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 7px;
+  color: var(--lib-meta-text);
+  font-size: 12px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+#lib-search-clear:hover { color: var(--lib-text); }
+
+/* Sort dropdown — lets the user choose how the workflow list is ordered
+   (recently modified, by name, by creation date, etc.). */
+
+.library-filter-bar {
+  padding: 0 10px 6px;
+  flex-shrink: 0;
+}
+
+#lib-sort-select {
+  width: 100%;
+  font-size: 11px;
+  padding: 3px 6px;
+  border: 1px solid var(--lib-border);
+  border-radius: 4px;
+  background-color: var(--lib-bg);
+  color: var(--lib-text);
+  cursor: pointer;
+}
+
+/* Workflow list — the scrollable <ul> that holds all workflow cards.
+   Uses a thin custom scrollbar to avoid layout interference. */
+
+.library-workflow-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.library-workflow-list::-webkit-scrollbar { width: 4px; }
+.library-workflow-list::-webkit-scrollbar-thumb {
+  background-color: var(--lib-border);
+  border-radius: 2px;
+}
+
+/* Workflow card — each list item shows the name, optional description, and
+   metadata (state count, last modified). A coloured left border marks the
+   active workflow, and action buttons appear on hover. */
+
+.workflow-item {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 10px 6px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  border-bottom: 1px solid var(--lib-border);
+  transition: background-color 0.22s ease, border-left-color 0.22s ease;
+}
+
+.workflow-item:hover {
+  background-color: var(--lib-hover-bg);
+}
+
+.workflow-item.active {
+  border-left-color: var(--lib-active-border);
+  background-color: var(--lib-active-bg);
+}
+
+.workflow-item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+/* Title row: name + inline rename button */
+.workflow-item-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.workflow-item-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--lib-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Inline rename pencil — fades in on row hover */
+.btn-rename-inline {
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 2px 4px;
+  color: var(--lib-meta-text);
+  font-size: 10px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.workflow-item:hover .btn-rename-inline,
+.workflow-item.active .btn-rename-inline {
+  opacity: 1;
+}
+
+.btn-rename-inline:hover {
+  color: var(--lib-active-border);
+  background-color: var(--lib-hover-bg);
+  border-color: var(--lib-border);
+}
+
+.workflow-item-description {
+  font-size: 10px;
+  color: var(--lib-meta-text);
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.9;
+}
+
+.workflow-item-meta {
+  font-size: 10px;
+  color: var(--lib-meta-text);
+}
+
+/* Action buttons — 3-button row, hidden until hover or active */
+.workflow-item-actions {
+  display: none;
+  flex-wrap: nowrap;
+  gap: 5px;
+  margin-top: 7px;
+  padding-top: 7px;
+  border-top: 1px solid var(--lib-border);
+  align-items: center;
+}
+
+.workflow-item:hover .workflow-item-actions,
+.workflow-item.active .workflow-item-actions {
+  display: flex;
+}
+
+/* Base style for the 3 action buttons (icon + label) */
+.btn-icon {
+  background: none;
+  border: 1px solid var(--lib-border);
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 3px 8px;
+  font-size: 11px;
+  color: var(--lib-btn-icon-color);
+  line-height: 1.4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.btn-icon:hover {
+  background-color: var(--lib-hover-bg);
+  border-color: var(--lib-active-border);
+  color: var(--lib-text);
+}
+
+.btn-icon .fa {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.btn-icon.danger:hover {
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+  color: #721c24;
+}
+
+.darkTheme .btn-icon.danger:hover {
+  background-color: rgba(220, 53, 69, 0.2);
+  border-color: rgba(220, 53, 69, 0.5);
+  color: #f1aeb5;
+}
+
+/* Empty state — centred placeholder displayed when no workflows exist or
+   when a search returns no results. */
+
+.library-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+  text-align: center;
+  color: var(--lib-meta-text);
+  font-size: 12px;
+  gap: 6px;
+}
+
+.library-empty-state-icon {
+  font-size: 28px;
+  opacity: 0.4;
+}
+
+/* Sidebar footer — shows the workflow count, storage used, and the quota
+   progress bar. Hidden when the sidebar is collapsed. */
+
+.library-footer {
+  padding: 8px 10px;
+  border-top: 1px solid var(--lib-border);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.library-footer-text {
+  font-size: 10px;
+  color: var(--lib-meta-text);
+}
+
+
+/* Theme and full-screen controls — a row of icon+label buttons at the very
+   bottom of the sidebar. When the sidebar is collapsed they stack vertically
+   and show icons only. */
+
+.sidebar-view-controls {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  padding: 8px 10px;
+  border-top: 1px solid var(--lib-border);
+  flex-shrink: 0;
+}
+
+.sidebar-ctrl-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 8px;
+  background: none;
+  border: 1px solid var(--lib-border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--lib-btn-icon-color);
+  white-space: nowrap;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.sidebar-ctrl-btn:hover {
+  background-color: var(--lib-hover-bg);
+  border-color: var(--lib-active-border);
+  color: var(--lib-text);
+}
+
+.sidebar-ctrl-btn .fa {
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+/* Collapsed: stack buttons vertically, icon only */
+#library-sidebar.collapsed .sidebar-view-controls {
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 0;
+  gap: 6px;
+  border-top: 1px solid var(--lib-border);
+}
+
+#library-sidebar.collapsed .sidebar-ctrl-btn {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 6px;
+}
+
+/* Provider badge — a small warning label in the sidebar footer shown when the
+   app fell back to sessionStorage or in-memory storage. */
+
+.provider-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  display: inline-block;
+  margin-top: 2px;
+}
+
+.provider-badge.session {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffc107;
+}
+
+.provider-badge.memory {
+  background-color: #ffe5d0;
+  color: #7d4301;
+  border: 1px solid #fd7e14;
+}
+
+/* Storage quota bar — a thin progress bar that fills as localStorage usage
+   grows. Turns yellow at 80 % full and red at 95 %. */
+
+.quota-bar-container {
+  height: 3px;
+  background-color: var(--lib-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.quota-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease, background-color 0.3s ease;
+  background-color: #28a745;
+  width: 0%;
+}
+
+.quota-bar-fill.warn   { background-color: #ffc107; }
+.quota-bar-fill.danger { background-color: #dc3545; }
+
+/* Editor column — the left panel of the split view. The Monaco editor card
+   grows to fill whatever height remains after the toolbar. */
+
+#editor-col {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+#editor-col .card {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden;
+  margin-bottom: 0 !important;
+  border-radius: 0;
+  border: none;
+}
+
+#editor-col .card-body {
+  flex: 1 !important;
+  height: auto !important;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Editor toolbar — the slim bar above Monaco showing the active workflow name,
+   autosave status, and the Format / Generate Diagram buttons. */
+
+#editor-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 10px;
+  border-bottom: 1px solid var(--lib-border);
+  background-color: var(--lib-bg);
+  flex-shrink: 0;
+  min-height: 36px;
+  gap: 8px;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.workflow-name-display {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--lib-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.autosave-status {
+  font-size: 10px;
+  white-space: nowrap;
+  transition: opacity 0.4s ease;
+}
+
+.autosave-status.status-dirty  { color: #856404; }
+.autosave-status.status-saving { color: var(--lib-meta-text); }
+.autosave-status.status-saved  { color: #155724; }
+.autosave-status.status-error  { color: #721c24; }
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.toolbar-right .btn {
+  font-size: 11px;
+  padding: 2px 8px;
+}
+
+/* Unsaved changes banner — a yellow strip that appears above the editor when
+   the user tries to navigate away from a workflow with unsaved edits. */
+
+#unsaved-banner {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  background-color: #fff3cd;
+  border-bottom: 1px solid #ffc107;
+  font-size: 12px;
+  color: #856404;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+#unsaved-banner.visible { display: flex; }
+
+#unsaved-banner .btn {
+  font-size: 11px;
+  padding: 2px 8px;
+}
+
+/* Quota warning banner — a Bootstrap alert repurposed as a full-width strip.
+   Resets Bootstrap's default margin so it sits flush in the flex column. */
+
+#quota-banner {
+  flex-shrink: 0;
+  border-radius: 0 !important;
+  margin-bottom: 0 !important;
+  font-size: 12px;
+}
+
+/* Toast notifications — a stack of brief pop-up messages fixed to the
+   bottom-right corner. Each toast slides in and fades out automatically. */
+
+#toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 9999;
+  pointer-events: none;
+  max-width: 340px;
+}
+
+.toast {
+  pointer-events: auto;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  animation: toast-in 0.2s ease;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.toast.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.toast.info    { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+.toast.warning { background: #fff3cd; color: #856404; border: 1px solid #ffc107; }
+.toast.error   { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+.toast-dismiss {
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: inherit;
+  opacity: 0.6;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.toast-dismiss:hover { opacity: 1; }
+
+/* Plain-JS modal support — Bootstrap 4 modals normally rely on Bootstrap JS
+   to show/hide. Since we don't load that, we drive the show/hide state
+   ourselves with these rules. */
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 1050;
+  overflow-x: hidden;
+  overflow-y: auto;
+  outline: 0;
+}
+
+.modal.show {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  z-index: 1040;
+}
+
+.modal-backdrop.show { display: block !important; }
+
+/* Sizing: wider and more comfortable by default */
+.modal .modal-dialog {
+  max-width: 560px;
+  width: calc(100% - 2rem);
+}
+
+.modal .modal-dialog.modal-sm {
+  max-width: 420px;
+}
+
+#modal-import .modal-dialog {
+  max-width: 660px;
+}
+
+/* Modal content — rounded, elevated */
+.modal .modal-content {
+  background-color: var(--lib-bg);
+  color: var(--lib-text);
+  border: 1px solid var(--lib-border);
+  border-radius: 10px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+/* Modal sections */
+.modal .modal-header {
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid var(--lib-border);
+  align-items: center;
+}
+
+.modal .modal-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.modal .modal-body {
+  padding: 1.5rem;
+}
+
+.modal .modal-footer {
+  padding: 0.9rem 1.5rem;
+  border-top: 1px solid var(--lib-border);
+  gap: 0.5rem;
+}
+
+/* Form controls inside modals */
+.modal .form-group {
+  margin-bottom: 1.25rem;
+}
+
+.modal .form-group:last-child {
+  margin-bottom: 0;
+}
+
+.modal label {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  color: var(--lib-text);
+}
+
+.modal .form-control {
+  background-color: var(--lib-bg);
+  color: var(--lib-text);
+  border-color: var(--lib-border);
+  font-size: 13px;
+  padding: 0.45rem 0.75rem;
+  border-radius: 6px;
+}
+
+.modal .form-control:focus {
+  background-color: var(--lib-bg);
+  color: var(--lib-text);
+  border-color: var(--lib-active-border);
+  box-shadow: 0 0 0 3px rgba(68, 140, 251, 0.15);
+}
+
+.modal textarea.form-control {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.modal .form-text {
+  font-size: 11px;
+  margin-top: 0.3rem;
+}
+
+/* Close button */
+.modal .close {
+  font-size: 1.2rem;
+  opacity: 0.5;
+  padding: 0.25rem;
+  line-height: 1;
+}
+
+.modal .close:hover { opacity: 0.9; }
+
+/* Import drop zone — the dashed-border drag-and-drop target inside the import
+   modal. Highlights with a blue border when a file is dragged over it. */
+
+.import-drop-zone {
+  border: 2px dashed var(--lib-border);
+  border-radius: 8px;
+  padding: 28px 20px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--lib-meta-text);
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+  cursor: default;
+  background-color: transparent;
+}
+
+.import-drop-zone p {
+  margin-bottom: 0.75rem;
+  font-size: 13px;
+}
+
+.import-drop-zone.drag-over {
+  border-color: #448cfb;
+  background-color: var(--lib-active-bg);
+}
+
+#import-paste-area {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace !important;
+  font-size: 12px !important;
+  min-height: 140px;
+  resize: vertical;
+}
+
+/* Frosted-glass icon button — a small translucent button positioned absolutely
+   inside a panel (editor or diagram area). Used for the format action. */
+
+.editor-ctrl-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: #495057;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.editor-ctrl-btn:hover {
+  background: rgba(255, 255, 255, 1);
+  color: #212529;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.darkTheme .editor-ctrl-btn {
+  background: rgba(45, 45, 48, 0.88);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #cccccc;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.darkTheme .editor-ctrl-btn:hover {
+  background: rgba(65, 65, 68, 0.95);
+  color: #ffffff;
+}
+
+/* Export dropdown — a small floating menu that appears below the Export button
+   in a workflow card, offering JSON and Image export options. */
+
+.export-dropdown {
+  position: fixed;
+  background: var(--lib-bg, #fff);
+  border: 1px solid var(--lib-border, #dee2e6);
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  min-width: 160px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  z-index: 9999;
+  animation: dropdown-in 0.12s ease;
+}
+
+@keyframes dropdown-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.export-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--lib-text, #212529);
+  border-radius: 5px;
+  text-align: left;
+  width: 100%;
+  transition: background-color 0.15s ease;
+}
+
+.export-dropdown-item:hover {
+  background-color: var(--lib-hover-bg, #f0f4ff);
+}
+
+.export-dropdown-item .fa {
+  font-size: 13px;
+  opacity: 0.7;
+  width: 14px;
+  text-align: center;
+}
+
+/* Diagram overlay controls — frosted-glass icon buttons for the top-right
+   corner of the diagram panel. Kept here in case they're needed again;
+   the theme and fullscreen controls currently live in the sidebar instead. */
+
+.diagram-wrapper {
+  position: relative;
+}
+
+.diagram-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 6px;
+  z-index: 10;
+}
+
+.diagram-ctrl-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #495057;
+  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.diagram-ctrl-btn:hover {
+  background: rgba(255, 255, 255, 1);
+  color: #212529;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.darkTheme .diagram-ctrl-btn {
+  background: rgba(45, 45, 48, 0.88);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #cccccc;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.darkTheme .diagram-ctrl-btn:hover {
+  background: rgba(65, 65, 68, 0.95);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Responsive layout — on narrow screens the sidebar becomes a fixed overlay
+   so it doesn't steal horizontal space from the editor and diagram panels. */
+
+@media (max-width: 768px) {
+  #library-sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 100vh;
+    transform: translateX(0);
+    transition: transform 0.25s ease;
+    z-index: 100;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+  }
+
+  #library-sidebar.collapsed {
+    transform: translateX(calc(-1 * var(--lib-width) + var(--lib-width-collapsed)));
+  }
+
+  .split-host {
+    flex-direction: column;
+  }
+}
