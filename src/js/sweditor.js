@@ -157,7 +157,14 @@ var editor
 
 document.addEventListener('DOMContentLoaded', () => {
   const toggleButton = document.getElementById('theme-toggle');
-  setTheme(localStorage.getItem("theme") === "dark")
+  const isDark = localStorage.getItem("theme") === "dark";
+  setTheme(isDark);
+
+  // Set day/night icon: show the mode you'll switch TO on click
+  const themeIcon = document.getElementById('theme-icon');
+  if (themeIcon) {
+    themeIcon.className = isDark ? 'fa fa-sun-o' : 'fa fa-moon-o';
+  }
 
   generateDiagram()
 

@@ -760,6 +760,58 @@ body {
   resize: vertical;
 }
 
+/* --- Diagram overlay controls (theme + fullscreen) - */
+
+.diagram-wrapper {
+  position: relative;
+}
+
+.diagram-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 6px;
+  z-index: 10;
+}
+
+.diagram-ctrl-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #495057;
+  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.diagram-ctrl-btn:hover {
+  background: rgba(255, 255, 255, 1);
+  color: #212529;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.darkTheme .diagram-ctrl-btn {
+  background: rgba(45, 45, 48, 0.88);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #cccccc;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.darkTheme .diagram-ctrl-btn:hover {
+  background: rgba(65, 65, 68, 0.95);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
 /* --- Responsive: narrow screens ------------------- */
 
 @media (max-width: 768px) {

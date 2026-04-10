@@ -120,11 +120,10 @@
                 <div class="card theme">
                     <div class="card-body">
 
-                        <div class="d-flex justify-content-between">
-                            <a href="#" class="btn btn-primary btn-sm" id="theme-toggle">Toggle theme</a>
+                        <div class="d-flex align-items-center" style="gap: 8px;">
                             <a href="#" class="btn btn-primary btn-sm"
-                                onclick="generateDiagram(this.value);return false;">Generate workflow diagram</a>
-                            <div class="d-flex">
+                                onclick="generateDiagram();return false;">Generate diagram</a>
+                            <div class="d-flex align-items-center ml-auto">
                                 <a href="#" class="btn btn-primary btn-sm"
                                     onclick="generateImageFromSVG(document.getElementById('quality').value);return false;">Generate image</a>
                                 <select id="quality" class="ml-2 theme">
@@ -133,12 +132,20 @@
                                     <option class="theme" value="1" selected>High</option>
                                 </select>
                             </div>
-                            <a href="#" class="btn btn-primary btn-sm"
-                                onclick="goFullScreen(this.value);return false;">Go full screen</a>
                         </div>
 
-                        <div class="workflowdiagram theme" style="overflow: hidden; height: 94vh;">
-                            <br />
+                        <div class="diagram-wrapper">
+                            <div class="diagram-controls">
+                                <button id="theme-toggle" class="diagram-ctrl-btn" title="Toggle theme">
+                                    <i class="fa fa-moon-o" id="theme-icon"></i>
+                                </button>
+                                <button class="diagram-ctrl-btn" title="Full screen" onclick="goFullScreen(); return false;">
+                                    <i class="fa fa-expand"></i>
+                                </button>
+                            </div>
+                            <div class="workflowdiagram theme" style="overflow: hidden; height: 94vh;">
+                                <br />
+                            </div>
                         </div>
                     </div>
                 </div>
