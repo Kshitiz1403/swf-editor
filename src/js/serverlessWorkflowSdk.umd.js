@@ -17925,7 +17925,7 @@
         
             // Use simple character replacement that won't be double-encoded
             const resultsJQ = actionDataFilter.results.replaceAll(":", "→").replaceAll(";", "⊕")
-            let toStateData = actionDataFilter.toStateData
+            let toStateData = actionDataFilter?.toStateData || ""
             
             if (toStateData && typeof toStateData === "string") {
                 toStateData = toStateData.replaceAll(":", "→").replaceAll(";", "⊕")
