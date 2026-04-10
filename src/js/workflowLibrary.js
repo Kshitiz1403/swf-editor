@@ -256,7 +256,7 @@ function _buildRecordAndEntry(id, content, name, description, tags, createdAt) {
 var Settings = {
   _defaults: {
     schemaVersion: '1',
-    autosave: { enabled: true, intervalMs: 30000, debounceMs: 1500 },
+    autosave: { enabled: true },
     sidebar: { collapsed: false, width: 260, sortBy: 'modifiedAt-desc' },
     editor: { confirmOnLoad: true, mirrorToLegacyKey: true },
   },
@@ -679,21 +679,13 @@ var WorkflowLibrary = {
 // ── 8. AutoSave ─────────────────────────────────────────────────────────────
 
 var AutoSave = {
-  _timerId: null,
   _debounceTimer: null,
   lastSavedContent: null,
 
-  start: function() {
-    this.stop();
-    var settings = Settings.load();
-    if (!settings.autosave.enabled) return;
-    var self = this;
-    var interval = settings.autosave.intervalMs || 30000;
-    this._timerId = setInterval(function() { self._tick(); }, interval);
-  },
+  // Auto-save is always on; saves are triggered via markDirty() on every edit.
+  start: function() {},
 
   stop: function() {
-    if (this._timerId !== null) { clearInterval(this._timerId); this._timerId = null; }
     if (this._debounceTimer !== null) { clearTimeout(this._debounceTimer); this._debounceTimer = null; }
   },
 
@@ -723,21 +715,12 @@ var AutoSave = {
   markDirty: function() {
     if (typeof LibraryUI !== 'undefined') LibraryUI.showAutosaveStatus('unsaved');
 
-    var settings = Settings.load();
-    if (!settings.autosave.enabled) return;
-    var debounce = settings.autosave.debounceMs || 1500;
     var self = this;
-
     if (this._debounceTimer !== null) clearTimeout(this._debounceTimer);
     this._debounceTimer = setTimeout(function() {
       self._debounceTimer = null;
       self._tick();
-    }, debounce);
-  },
-
-  setIntervalMs: function(ms) {
-    Settings.save({ autosave: { intervalMs: ms > 0 ? ms : 30000, enabled: ms > 0 } });
-    if (ms > 0) { this.start(); } else { this.stop(); }
+    }, 800);
   },
 };
 

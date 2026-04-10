@@ -34,12 +34,6 @@ var LibraryUI = (function() {
 
     var sortSelect = document.getElementById('lib-sort-select');
     if (sortSelect) sortSelect.value = settings.sidebar.sortBy || 'modifiedAt-desc';
-
-    var autosaveSelect = document.getElementById('lib-autosave-select');
-    if (autosaveSelect) {
-      var ms = settings.autosave.enabled ? settings.autosave.intervalMs : 0;
-      autosaveSelect.value = String(ms);
-    }
   }
 
   // ── Provider badge ────────────────────────────────────────────────────────
@@ -104,20 +98,29 @@ var LibraryUI = (function() {
     var li = document.createElement('li');
     li.className = 'workflow-item' + (isActive ? ' active' : '');
     li.dataset.id = entry.id;
-    li.title = entry.description || entry.name;
+    li.title = entry.description ? entry.description : 'Click to open';
 
     li.innerHTML =
       '<div class="workflow-item-main">' +
-        '<span class="workflow-item-name">' + _escapeHtml(entry.name) + '</span>' +
-        '<span class="workflow-item-meta">' + entry.stateCount + ' states &middot; ' + _escapeHtml(entry.specVersion || '\u2014') + '</span>' +
-        '<span class="workflow-item-date">' + relativeTime(entry.modifiedAt) + '</span>' +
+        '<div class="workflow-item-header">' +
+          '<span class="workflow-item-name">' + _escapeHtml(entry.name) + '</span>' +
+          '<button class="btn-icon btn-rename-inline lib-rename-btn" title="Rename" data-id="' + entry.id + '">' +
+            '<i class="fa fa-pencil"></i>' +
+          '</button>' +
+        '</div>' +
+        (entry.description ? '<span class="workflow-item-description">' + _escapeHtml(entry.description) + '</span>' : '') +
+        '<span class="workflow-item-meta">' + entry.stateCount + ' states &middot; ' + relativeTime(entry.modifiedAt) + '</span>' +
       '</div>' +
       '<div class="workflow-item-actions">' +
-        '<button class="btn-icon lib-load-btn"       title="Load"       data-id="' + entry.id + '">\u21D3</button>' +
-        '<button class="btn-icon lib-rename-btn"     title="Rename"     data-id="' + entry.id + '">\u270E</button>' +
-        '<button class="btn-icon lib-duplicate-btn"  title="Duplicate"  data-id="' + entry.id + '">\u29C9</button>' +
-        '<button class="btn-icon lib-export-btn"     title="Export JSON" data-id="' + entry.id + '">\u21D3</button>' +
-        '<button class="btn-icon lib-delete-btn danger" title="Delete"  data-id="' + entry.id + '">\uD83D\uDDD1</button>' +
+        '<button class="btn-icon lib-duplicate-btn" title="Duplicate workflow" data-id="' + entry.id + '">' +
+          '<i class="fa fa-clone"></i><span>Duplicate</span>' +
+        '</button>' +
+        '<button class="btn-icon lib-export-btn" title="Export as JSON" data-id="' + entry.id + '">' +
+          '<i class="fa fa-download"></i><span>Export</span>' +
+        '</button>' +
+        '<button class="btn-icon lib-delete-btn danger" title="Delete workflow" data-id="' + entry.id + '">' +
+          '<i class="fa fa-trash"></i><span>Delete</span>' +
+        '</button>' +
       '</div>';
 
     return li;
@@ -511,21 +514,27 @@ var LibraryUI = (function() {
     var list = document.getElementById('lib-workflow-list');
     if (list) {
       list.addEventListener('click', function(e) {
-        var btn = e.target.closest('[data-id]');
-        if (!btn) return;
-        var id = btn.dataset.id;
-        if (btn.classList.contains('lib-load-btn')) {
-          _guardUnsaved(id, function() { _doLoad(id); });
-        } else if (btn.classList.contains('lib-rename-btn')) {
-          _openRenameModal(id);
-        } else if (btn.classList.contains('lib-duplicate-btn')) {
-          _doDuplicate(id);
-        } else if (btn.classList.contains('lib-export-btn')) {
-          _doExport(id);
-        } else if (btn.classList.contains('lib-delete-btn')) {
-          _openDeleteModal(id);
+        // Action button click — handle first, do not propagate to item load
+        var btn = e.target.closest('.btn-icon');
+        if (btn && btn.dataset.id) {
+          var id = btn.dataset.id;
+          if (btn.classList.contains('lib-rename-btn')) {
+            _openRenameModal(id);
+          } else if (btn.classList.contains('lib-duplicate-btn')) {
+            _doDuplicate(id);
+          } else if (btn.classList.contains('lib-export-btn')) {
+            _doExport(id);
+          } else if (btn.classList.contains('lib-delete-btn')) {
+            _openDeleteModal(id);
+          }
+          e.stopPropagation();
+          return;
         }
-        e.stopPropagation();
+        // Click on the item row itself → load the workflow
+        var item = e.target.closest('.workflow-item');
+        if (item && item.dataset.id) {
+          _guardUnsaved(item.dataset.id, function() { _doLoad(item.dataset.id); });
+        }
       });
     }
 
@@ -551,14 +560,6 @@ var LibraryUI = (function() {
       });
     }
 
-    var autosaveSelect = document.getElementById('lib-autosave-select');
-    if (autosaveSelect) {
-      autosaveSelect.addEventListener('change', function(e) {
-        var ms = parseInt(e.target.value, 10);
-        AutoSave.setIntervalMs(ms);
-        showToast(ms > 0 ? 'Auto-save set.' : 'Auto-save disabled.', 'info', 2000);
-      });
-    }
   }
 
   // ── Toolbar event binding ─────────────────────────────────────────────────

@@ -71,7 +71,6 @@ body {
 #library-sidebar.collapsed .library-filter-bar,
 #library-sidebar.collapsed #lib-workflow-list,
 #library-sidebar.collapsed .library-footer-text,
-#library-sidebar.collapsed .library-footer-autosave,
 #library-sidebar.collapsed .quota-bar-container {
   display: none;
 }
@@ -222,7 +221,7 @@ body {
   cursor: pointer;
   border-left: 3px solid transparent;
   border-bottom: 1px solid var(--lib-border);
-  transition: background-color 0.1s ease;
+  transition: background-color 0.22s ease, border-left-color 0.22s ease;
 }
 
 .workflow-item:hover {
@@ -237,11 +236,21 @@ body {
 .workflow-item-main {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
+  min-width: 0;
+}
+
+/* Title row: name + inline rename button */
+.workflow-item-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   min-width: 0;
 }
 
 .workflow-item-name {
+  flex: 1;
+  min-width: 0;
   font-size: 12px;
   font-weight: 600;
   color: var(--lib-text);
@@ -250,47 +259,105 @@ body {
   text-overflow: ellipsis;
 }
 
+/* Inline rename pencil — fades in on row hover */
+.btn-rename-inline {
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 2px 4px;
+  color: var(--lib-meta-text);
+  font-size: 10px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.workflow-item:hover .btn-rename-inline,
+.workflow-item.active .btn-rename-inline {
+  opacity: 1;
+}
+
+.btn-rename-inline:hover {
+  color: var(--lib-active-border);
+  background-color: var(--lib-hover-bg);
+  border-color: var(--lib-border);
+}
+
+.workflow-item-description {
+  font-size: 10px;
+  color: var(--lib-meta-text);
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.9;
+}
+
 .workflow-item-meta {
   font-size: 10px;
   color: var(--lib-meta-text);
 }
 
-.workflow-item-date {
-  font-size: 10px;
-  color: var(--lib-meta-text);
-}
-
-/* Action buttons — hidden until hover */
+/* Action buttons — 3-button row, hidden until hover or active */
 .workflow-item-actions {
   display: none;
-  gap: 2px;
-  margin-top: 5px;
+  flex-wrap: nowrap;
+  gap: 5px;
+  margin-top: 7px;
+  padding-top: 7px;
+  border-top: 1px solid var(--lib-border);
+  align-items: center;
 }
 
-.workflow-item:hover .workflow-item-actions {
+.workflow-item:hover .workflow-item-actions,
+.workflow-item.active .workflow-item-actions {
   display: flex;
 }
 
+/* Base style for the 3 action buttons (icon + label) */
 .btn-icon {
   background: none;
-  border: 1px solid transparent;
-  border-radius: 3px;
+  border: 1px solid var(--lib-border);
+  border-radius: 4px;
   cursor: pointer;
-  padding: 1px 5px;
-  font-size: 12px;
+  padding: 3px 8px;
+  font-size: 11px;
   color: var(--lib-btn-icon-color);
   line-height: 1.4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .btn-icon:hover {
-  background-color: var(--lib-border);
-  border-color: var(--lib-border);
+  background-color: var(--lib-hover-bg);
+  border-color: var(--lib-active-border);
+  color: var(--lib-text);
+}
+
+.btn-icon .fa {
+  font-size: 11px;
+  opacity: 0.8;
 }
 
 .btn-icon.danger:hover {
   background-color: #f8d7da;
   border-color: #f5c6cb;
   color: #721c24;
+}
+
+.darkTheme .btn-icon.danger:hover {
+  background-color: rgba(220, 53, 69, 0.2);
+  border-color: rgba(220, 53, 69, 0.5);
+  color: #f1aeb5;
 }
 
 /* --- Empty State ---------------------------------- */
@@ -328,23 +395,6 @@ body {
   color: var(--lib-meta-text);
 }
 
-.library-footer-autosave {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  color: var(--lib-meta-text);
-  flex-wrap: wrap;
-}
-
-.library-footer-autosave select {
-  font-size: 11px;
-  padding: 1px 4px;
-  border: 1px solid var(--lib-border);
-  border-radius: 3px;
-  background-color: var(--lib-bg);
-  color: var(--lib-text);
-}
 
 /* --- Provider Badge ------------------------------- */
 
@@ -580,44 +630,134 @@ body {
 
 .modal-backdrop.show { display: block !important; }
 
+/* Sizing: wider and more comfortable by default */
+.modal .modal-dialog {
+  max-width: 560px;
+  width: calc(100% - 2rem);
+}
+
+.modal .modal-dialog.modal-sm {
+  max-width: 420px;
+}
+
+#modal-import .modal-dialog {
+  max-width: 660px;
+}
+
+/* Modal content — rounded, elevated */
 .modal .modal-content {
   background-color: var(--lib-bg);
   color: var(--lib-text);
-  border-color: var(--lib-border);
+  border: 1px solid var(--lib-border);
+  border-radius: 10px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
 }
 
-.modal .modal-header,
+/* Modal sections */
+.modal .modal-header {
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid var(--lib-border);
+  align-items: center;
+}
+
+.modal .modal-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.modal .modal-body {
+  padding: 1.5rem;
+}
+
 .modal .modal-footer {
-  border-color: var(--lib-border);
+  padding: 0.9rem 1.5rem;
+  border-top: 1px solid var(--lib-border);
+  gap: 0.5rem;
+}
+
+/* Form controls inside modals */
+.modal .form-group {
+  margin-bottom: 1.25rem;
+}
+
+.modal .form-group:last-child {
+  margin-bottom: 0;
+}
+
+.modal label {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  color: var(--lib-text);
 }
 
 .modal .form-control {
   background-color: var(--lib-bg);
   color: var(--lib-text);
   border-color: var(--lib-border);
+  font-size: 13px;
+  padding: 0.45rem 0.75rem;
+  border-radius: 6px;
 }
 
 .modal .form-control:focus {
   background-color: var(--lib-bg);
   color: var(--lib-text);
+  border-color: var(--lib-active-border);
+  box-shadow: 0 0 0 3px rgba(68, 140, 251, 0.15);
 }
+
+.modal textarea.form-control {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.modal .form-text {
+  font-size: 11px;
+  margin-top: 0.3rem;
+}
+
+/* Close button */
+.modal .close {
+  font-size: 1.2rem;
+  opacity: 0.5;
+  padding: 0.25rem;
+  line-height: 1;
+}
+
+.modal .close:hover { opacity: 0.9; }
 
 /* --- Import Drop Zone ----------------------------- */
 
 .import-drop-zone {
   border: 2px dashed var(--lib-border);
-  border-radius: 6px;
-  padding: 18px;
+  border-radius: 8px;
+  padding: 28px 20px;
   text-align: center;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--lib-meta-text);
   transition: border-color 0.15s ease, background-color 0.15s ease;
   cursor: default;
+  background-color: transparent;
+}
+
+.import-drop-zone p {
+  margin-bottom: 0.75rem;
+  font-size: 13px;
 }
 
 .import-drop-zone.drag-over {
   border-color: #448cfb;
   background-color: var(--lib-active-bg);
+}
+
+#import-paste-area {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace !important;
+  font-size: 12px !important;
+  min-height: 140px;
+  resize: vertical;
 }
 
 /* --- Responsive: narrow screens ------------------- */
