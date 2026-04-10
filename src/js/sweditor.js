@@ -148,15 +148,23 @@ document.querySelectorAll('#mermaid').forEach(diagram => {
 
 function mountEditor() {
   monaco.editor.getModels()[0].onDidChangeContent(e =>{
-  saveToLocalStorage();
-  })
+    saveToLocalStorage();
+    if (typeof AutoSave !== 'undefined') AutoSave.markDirty();
+  });
 }
 
 var editor
 
 document.addEventListener('DOMContentLoaded', () => {
   const toggleButton = document.getElementById('theme-toggle');
-  setTheme(localStorage.getItem("theme") === "dark")
+  const isDark = localStorage.getItem("theme") === "dark";
+  setTheme(isDark);
+
+  // Set day/night icon: show the mode you'll switch TO on click
+  const themeIcon = document.getElementById('theme-icon');
+  if (themeIcon) {
+    themeIcon.className = isDark ? 'fa fa-sun-o' : 'fa fa-moon-o';
+  }
 
   generateDiagram()
 
@@ -209,7 +217,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   toggleButton.addEventListener('click', () => {
    toggleTheme();
-  })
+  });
+
+  if (typeof WorkflowLibrary !== 'undefined') {
+    var libInfo = WorkflowLibrary.init();
+    if (typeof LibraryUI !== 'undefined') {
+      LibraryUI.init(libInfo);
+      AutoSave.lastSavedContent = monaco.editor.getModels()[0].getValue();
+      AutoSave.start();
+    }
+  }
 });
 
 function formatJSON(){
@@ -337,15 +354,8 @@ if (sizes) {
 Split(['#editor-col', '#diagram-col'], {
   sizes: sizes,
   onDrag: () => {
-      editor.layout({ width: 0, height: 0 })
-
-      window.requestAnimationFrame(()=>{
-
-        const sizeEditor = document.querySelector('#editor-col').getBoundingClientRect();
-  
-        editor.layout({ width: sizeEditor.width, height: sizeEditor.height })
-      })
-
+      editor.layout({ width: 0, height: 0 });
+      window.requestAnimationFrame(() => editor.layout());
   },
   onDragEnd:(sizes)=>{
     localStorage.setItem(LOCAL_STORAGE_SPLIT_SIZES, JSON.stringify(sizes))
