@@ -339,14 +339,25 @@ var LibraryUI = (function() {
   }
 
   function _doNewWorkflow() {
-    var defaultJson;
-    try { defaultJson = JSON.stringify(customerApplication, null, 2); }
-    catch (_) { defaultJson = '{}'; }
-    try { monaco.editor.getModels()[0].setValue(defaultJson); } catch (_) {}
-    WorkflowLibrary.setActiveId(null);
-    AutoSave.lastSavedContent = defaultJson;
+    var emptyJson = JSON.stringify({
+      id: 'unnamed-workflow',
+      name: 'Unnamed Workflow',
+      version: '1.0',
+      specVersion: '0.8',
+      states: []
+    }, null, 2);
+
+    var result = WorkflowLibrary.createWorkflow('Unnamed Workflow', emptyJson);
+    if (!result.ok) {
+      showToast('Could not create workflow: ' + result.error, 'error');
+      return;
+    }
+
+    try { monaco.editor.getModels()[0].setValue(emptyJson); } catch (_) {}
+    AutoSave.lastSavedContent = emptyJson;
     _syncActiveWorkflowName();
     _refreshList();
+    updateStorageInfo();
     showAutosaveStatus('');
   }
 
